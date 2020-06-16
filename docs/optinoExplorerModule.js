@@ -35,12 +35,67 @@ const OptinoExplorer = {
                   -->
                 </div>
 
-                <b-modal id="bv-modal-mintoptino" size="xl" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-1 p-1">
+                <b-modal v-model="showForDevelopment" id="bv-modal-mintoptino" size="xl" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-1 p-1">
                   <template v-slot:modal-title>
                     Mint Optinos [{{ networkName }}]
                   </template>
-                  <b-card-body class="m-0 p-0">
-                  </b-card-body>
+                  <b-card no-body bg-variant="light" class="m-0 mt-3 p-2" header-class="m-0 p-0" header="Select Spot Rate">
+                    <div>
+                      <b-card no-body>
+                        <!-- <b-tabs pills card vertical end v-model="spotRateMode"> -->
+                        <b-tabs card v-model="spotRateMode">
+                          <b-tab title="Single Registered Feed">
+                            <b-card-text>
+                              <div class="d-flex m-0 p-0" style="height: 37px;">
+                                <div class="pr-1">
+                                  <b-form-input type="text" size="sm" v-model.trim="searchFeed0" debounce="600" placeholder="Search..." v-b-popover.hover="'Search'"></b-form-input>
+                                </div>
+                                <div class="pr-1 flex-grow-1">
+                                </div>
+                                <div class="pr-1">
+                                 <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
+                                </div>
+                              </div>
+                              <!-- <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="registeredFeeds" :fields="addFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked"> -->
+                              <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked">
+                                <template v-slot:cell(name)="data">
+                                  <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>
+                                </template>
+                                <template v-slot:cell(note)="data">
+                                  <span v-b-popover.hover="data.item.note">{{ truncate(data.item.note, 32) }}</span>
+                                </template>
+                                <template v-slot:cell(spot)="data">
+                                  <span class="text-right">{{ data.item.spot.shift(-data.item.decimals).toString() }} </span>
+                                </template>
+                                <template v-slot:cell(timestamp)="data">
+                                  <span class="text-right">{{ new Date(data.item.timestamp*1000).toLocaleString() }} </span>
+                                </template>
+                                <template v-slot:cell(address)="data">
+                                  <b-link :href="explorer + 'token/' + data.item.address" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
+                                </template>
+                              </b-table>
+                              </b-card-text>
+                          </b-tab>
+                          <b-tab title="Dual Registered Feeds"><b-card-text>Dual Feeds</b-card-text></b-tab>
+                          <b-tab title="Custom Feeds"><b-card-text>Custom Feeds</b-card-text></b-tab>
+                        </b-tabs>
+                      </b-card>
+                    </div>
+                    <!--
+                    <div>
+                      <b-tabs card v-model="addTokenTabIndex" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
+                        <b-tab size="sm" title="Search">
+                        </b-tab>
+                      </b-tabs>
+                    </div>
+                    -->
+                    <b-form-group class="mt-2" label-cols="3" label="Calculated spot">
+                      <b-input-group>
+                        <b-form-input type="text" v-model.trim="calculatedSpot" readonly placeholder="Retrieving latest rate"></b-form-input>
+                      </b-input-group>
+                    </b-form-group>
+                    {{ spotRateMode }}
+                  </b-card>
                 </b-modal>
 
                 <b-table style="font-size: 85%;" small striped selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['base', 'quote', 'feed0', 'feed1', 'type', 'strike', 'bound', 'optino', 'cover']" show-empty>
@@ -86,6 +141,7 @@ const OptinoExplorer = {
                         Token {{ row.item.symbol }} {{ row.item.name }}<!-- <b-button size="sm" class="m-0 p-0" @click="removeTokenFromList(row.item.address, row.item.symbol)" variant="link" v-b-popover.hover="'Remove ' + row.item.symbol + ' from list?'"><b-icon-trash font-scale="0.9"></b-icon-trash></b-button> -->
                       </b-card-header>
                       <b-card-body class="m-0 p-0">
+                      </b-card-body>
                     </b-card>
                   </template>
                 </b-table>
@@ -496,6 +552,11 @@ const OptinoExplorer = {
 
       reschedule: false,
 
+      spotRateMode: 0,
+      searchFeed0: null,
+
+      showForDevelopment: true,
+
       seriesSearch: null,
       seriesCurrentPage: 1,
       seriesPerPage: 10,
@@ -537,7 +598,7 @@ const OptinoExplorer = {
       payoffs: null,
 
       // TODO Delete
-      baseTokens: "0.1",
+      // baseTokens: "0.1",
 
       // typeOptions: [
       //   { value: 0xff, text: 'Default' },
@@ -637,6 +698,17 @@ const OptinoExplorer = {
         // { key: 'allowance', label: 'Allowance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'address', label: 'Address', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'extra', label: '', sortable: false },
+      ],
+      selectFeedFields: [
+        { key: 'name', label: 'Name', sortable: true },
+        // { key: 'type', label: 'Type', sortable: true },
+        // { key: 'decimals', label: 'Decimals', sortable: true, tdClass: 'text-right' },
+        { key: 'note', label: 'Note', sortable: true },
+        { key: 'spot', label: 'Spot', sortable: true },
+        // { key: 'hasData', label: 'Data?', sortable: true },
+        { key: 'timestamp', label: 'Timestamp', formatter: d => { return new Date(d*1000).toLocaleString(); }, sortable: true },
+        { key: 'address', label: 'Address', sortable: true },
+        { key: 'selected', label: 'Select', sortable: false },
       ],
     }
   },
@@ -877,6 +949,21 @@ const OptinoExplorer = {
       sortedData.forEach(function(e) {
         var disabled = e.address === t.feed0;
         results.push({ value: e.address, text: e.address.substring(0, 10) + " " + e.name + " " + parseFloat(new BigNumber(e.spot).shift(-e.decimals).toFixed(9)) + " " + new Date(e.timestamp*1000).toLocaleString(), disabled: e.address == t.feed0 });
+      });
+      return results;
+    },
+    registeredFeeds() {
+      var results = [];
+      var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
+      var feedData = store.getters['feeds/feedData'];
+      for (var address in registeredFeedData) {
+        var feed = registeredFeedData[address];
+        if (feed.source == "registered") {
+          results.push(feed);
+        }
+      }
+      results.sort(function(a, b) {
+        return ('' + a.sortKey).localeCompare(b.sortKey);
       });
       return results;
     },

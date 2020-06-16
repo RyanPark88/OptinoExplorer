@@ -191,7 +191,7 @@ const feedsModule = {
           var factory = web3.eth.contract(OPTINOFACTORYABI).at(store.getters['optinoFactory/address']);
           var _owner = promisify(cb => factory.owner(cb));
           var owner = await _owner;
-          logInfo("feedsModule", "execWeb3() owner: " + owner);
+          // logInfo("feedsModule", "execWeb3() owner: " + owner);
           // var _peek = promisify(cb => contract.peek(cb));
           // var peek = await _peek;
           // var _value;

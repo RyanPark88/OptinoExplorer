@@ -52,7 +52,7 @@ const FeedsExplorer = {
                                 </template>
                                 <b-form-input size="sm" type="text" v-model.trim="feedInfo.address" placeholder="Enter feed contract address and click on the search button" v-b-popover.hover="'Enter feed contract address and click on the search button'"></b-form-input>
                                 <b-input-group-append>
-                                  <b-button size="sm" :href="explorer + 'token/' + feedInfo.address" target="_blank" variant="outline-info" v-b-popover.hover="'View address on the block explorer'"><b-icon-link45deg class="rounded-circle" font-scale="1"></b-icon-link45deg></b-button>
+                                  <b-button size="sm" :href="explorer + 'address/' + feedInfo.address + '#readContract'" target="_blank" variant="outline-info" v-b-popover.hover="'View address on the block explorer'"><b-icon-link45deg class="rounded-circle" font-scale="1"></b-icon-link45deg></b-button>
                                 </b-input-group-append>
                                 <b-form-invalid-feedback :state="feedInfo.ok && feedInfo.address != ''">
                                   Invalid feed address
@@ -131,16 +131,16 @@ const FeedsExplorer = {
                             <span v-b-popover.hover="data.item.note">{{ truncate(data.item.note, 32) }}</span>
                           </template>
                           <template v-slot:cell(spot)="data">
-                            <div class="text-right">{{ data.item.spot.shift(-data.item.decimals).toString() }} </div>
+                            <span class="text-right">{{ data.item.spot.shift(-data.item.decimals).toString() }} </span>
                           </template>
                           <template v-slot:cell(timestamp)="data">
-                            <div class="text-right">{{ new Date(data.item.timestamp*1000).toLocaleString() }} </div>
+                            <span class="text-right">{{ new Date(data.item.timestamp*1000).toLocaleString() }} </span>
                           </template>
                           <template v-slot:head(address)="data">
                             <span v-b-popover.hover="'Always confirm the feed contract address on a block explorer and alternative sources'">Address</span>
                           </template>
                           <template v-slot:cell(address)="data">
-                            <b-link :href="explorer + 'token/' + data.item.address" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
+                            <b-link :href="explorer + 'address/' + data.item.address + '#readContract'" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
                           </template>
                           <template v-slot:cell(selected)="data">
                             <b-icon-check2 font-scale="1.4" v-if="selectedFeeds[data.item.address.toLowerCase()]"></b-icon-check2>
@@ -255,7 +255,7 @@ const FeedsExplorer = {
                   <span v-b-popover.hover="'Always confirm the feed contract address on a block explorer and alternative sources'">Address</span>
                 </template>
                 <template v-slot:cell(address)="data">
-                  <b-link :href="explorer + 'token/' + data.item.address" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
+                  <b-link :href="explorer + 'address/' + data.item.address + '#readContract'" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
                 </template>
                 <template v-slot:cell(extra)="row">
                   <b-icon-lock-fill class="m-0 p-0" shift-v="2" font-scale="0.9" variant="secondary" v-if="row.item.locked" v-b-popover.hover="'Feed configuration cannot be updated'"></b-icon-lock-fill>
