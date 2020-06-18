@@ -21,7 +21,7 @@ const OptinoExplorer = {
                     <b-form-select size="sm" :options="seriesPageOptions" v-model="seriesPerPage" v-b-popover.hover="'Select page size'"/>
                   </div>
                   <div class="pr-1">
-                    <b-button size="sm" class="m-0 p-0" href="#" @click="$bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
+                    <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('show', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
                   </div>
                   <!--
                   <div class="pr-1">
@@ -108,44 +108,53 @@ const OptinoExplorer = {
                       </b-form-group>
 
                       <b-form-group label-cols="4" label-size="sm" label="Tokens">
-                        <b-input-group>
+                        <b-input-group size="sm" append="OPT & COV">
                           <b-form-input size="sm" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
                         </b-input-group>
                       </b-form-group>
 
-                      <b-form-group label-cols="4" label-size="sm" label="collateralTokenNew">
+                      <!--
+                      <b-form-group label-cols="4" label-size="sm" label="collateralToken">
                         <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="collateralTokenNew" readonly></b-form-input>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralToken" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="collateralTokens">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="collateralTokens" readonly></b-form-input>
+                      -->
+                      <b-form-group label-cols="4" label-size="sm" label="Collateral to escrow">
+                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralTokens" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="collateralDecimalsNew">
+                      <!--
+                      <b-form-group label-cols="4" label-size="sm" label="collateralDecimals">
                         <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="collateralDecimalsNew" readonly></b-form-input>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralDecimals" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="collateralFee">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="collateralFee" readonly></b-form-input>
+                      -->
+                      <b-form-group label-cols="4" label-size="sm" label="Fee">
+                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralFee" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="Total collateral + fee">
+                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                          <b-form-input size="sm" type="text" :value="optino.collateralTokens + optino.collateralFee" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="feedDecimals0">
                         <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="feedDecimals0" readonly></b-form-input>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.feedDecimals0" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="currentSpot">
                         <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="currentSpot" readonly></b-form-input>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.currentSpot" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="currentPayoff">
                         <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="currentPayoff" readonly></b-form-input>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="payoffs">
@@ -352,8 +361,9 @@ const OptinoExplorer = {
                   </template>
                   <template v-slot:cell(extra)="row">
                     <b-link @click="row.toggleDetails" class="card-link m-0 p-0" v-b-popover.hover="'Show ' + (row.detailsShowing ? 'less' : 'more')"><b-icon-caret-up-fill font-scale="0.9" v-if="row.detailsShowing"></b-icon-caret-up-fill><b-icon-caret-down-fill font-scale="0.9" v-if="!row.detailsShowing"></b-icon-caret-down-fill></b-link>
-                    <b-link @click="getSomeTokens(row.item.address)" class="card-link m-0 p-0" v-b-popover.hover="'Get some ' + row.item.symbol + ' tokens from the faucet for testing'"><b-icon-droplet font-scale="0.9"></b-icon-droplet></b-link>
-                    <b-link @click="removeTokenFromList(row.item.address, row.item.symbol)" class="card-link m-0 p-0" v-b-popover.hover="'Remove ' + row.item.symbol + ' from list. This can be added back later.'"><b-icon-trash font-scale="0.9"></b-icon-trash></b-link>
+                    <!-- <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('show', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button> -->
+                    <b-link @click="recalculate('setSeries', row.item); $bvModal.show('bv-modal-optino')" class="card-link m-0 p-0" v-b-popover.hover="'Edit ' + row.item.index + ' series'"><b-icon-pencil-square font-scale="0.9"></b-icon-pencil-square></b-link>
+                    <!-- <b-link @click="removeTokenFromList(row.item.address, row.item.symbol)" class="card-link m-0 p-0" v-b-popover.hover="'Remove ' + row.item.symbol + ' from list. This can be added back later.'"><b-icon-trash font-scale="0.9"></b-icon-trash></b-link> -->
                   </template>
                   <template v-slot:row-details="row">
                     <b-card no-body class="m-1 mt-2 p-1">
@@ -1356,12 +1366,12 @@ const OptinoExplorer = {
       return s;
     },
     tokenSymbol(address) {
-      var addr = address.toLowerCase();
+      var addr = address == null ? null : address.toLowerCase();
       var tokenData = store.getters['optinoFactory/tokenData'];
       if (typeof tokenData[addr] !== "undefined") {
         return tokenData[addr].symbol;
       }
-      return address.substr(0, 10) + '...';
+      return address == null ? null : address.substr(0, 10) + '...';
     },
     tokenName(address) {
       var addr = address.toLowerCase();
@@ -1497,65 +1507,93 @@ const OptinoExplorer = {
     },
     async recalculate(source, event) {
       logInfo("optinoExplorer", "recalculate(" + source + ", " + JSON.stringify(event) + ")");
+
+      if (source == "setSeries") {
+        logInfo("optinoExplorer", "recalculate - optino before: " + JSON.stringify(this.optino));
+        this.optino.callPut = event.callPut;
+        // this.optino.vanillaOrBounded = event.feed1;
+        this.optino.feed0 = event.feeds[0];
+        this.optino.feed1 = event.feeds[1];
+
+        this.optino.type0 = event.feedParameters[0];
+        this.optino.type1 = event.feedParameters[1];
+        this.optino.decimals0 = event.feedParameters[2];
+        this.optino.decimals1 = event.feedParameters[3];
+        this.optino.inverse0 = event.feedParameters[4];
+        this.optino.inverse1 = event.feedParameters[5];
+
+        this.optino.strike = new BigNumber(event.strike).shift(-event.feedDecimals0).toString();
+        // this.optino.cap = event.cap;
+        // this.optino.floor = event.floor;
+
+        this.optino.expiryInMillis = event.expiry * 1000;
+
+        this.optino.token0 = event.pair[0];
+        this.optino.token1 = event.pair[1];
+        logInfo("optinoExplorer", "recalculate - optino  after: " + JSON.stringify(this.optino));
+      }
+
       var factoryAddress = store.getters['optinoFactory/address']
       var factory = web3.eth.contract(OPTINOFACTORYABI).at(factoryAddress);
-      var feedDecimals0 = null;
       var feedType0 = null;
       // logInfo("optinoExplorer", "recalculate feedParameters:" + JSON.stringify([this.type0, this.type1, this.decimals0, this.decimals1, this.inverse0, this.inverse1]));
       try {
-        var _calculateSpot = promisify(cb => factory.calculateSpot([this.feed0, this.feed1],
-          [this.type0, this.type1, this.decimals0, this.decimals1, this.inverse0, this.inverse1], cb));
+        var _calculateSpot = promisify(cb => factory.calculateSpot([this.optino.feed0, this.optino.feed1],
+          [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1], cb));
         var calculateSpot = await _calculateSpot;
         logInfo("optinoExplorer", "recalculate - calculateSpot: " + JSON.stringify(calculateSpot));
-        feedDecimals0 = calculateSpot[0];
-        feedType0 = calculateSpot[1];
-        this.calculatedSpot = calculateSpot[2].shift(-feedDecimals0).toString();
+        this.optino.feedDecimals0 = parseInt(calculateSpot[0]);
+        feedType0 = parseInt(calculateSpot[1]);
+        this.optino.calculatedSpot = calculateSpot[2].shift(-this.optino.feedDecimals0).toString();
       } catch (e) {
-        this.calculatedSpot = "";
+        this.optino.calculatedSpot = null;
       }
 
-      var feedData = store.getters['feeds/feedData'];
-      // logInfo("optinoExplorer", "feedData: " + JSON.stringify(feedData));
-      // logInfo("optinoExplorer", "this.feed0: " + this.feed0);
-      var feed = this.feed0 == null ? null : feedData[this.feed0.toLowerCase()];
-      // logInfo("optinoExplorer", "feed: " + JSON.stringify(feed));
-      // logInfo("optinoExplorer", "feedData: " + JSON.stringify(feed));
-      if (!feed && (this.type0 == 0xff || this.decimals0 == 0xff)) {
-        alert("Feed data not available yet");
-      } else {
-        var feedDecimals0 = this.decimals0 != 0xff ? this.decimals0 : feed.decimals;
-        // logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
-        var spots = [new BigNumber("9769.26390498279639").shift(feedDecimals0), new BigNumber(50).shift(feedDecimals0), new BigNumber(100).shift(feedDecimals0), new BigNumber(150).shift(feedDecimals0), new BigNumber(200).shift(feedDecimals0), new BigNumber(250).shift(feedDecimals0), new BigNumber(300).shift(feedDecimals0), new BigNumber(350).shift(feedDecimals0), new BigNumber(400).shift(feedDecimals0), new BigNumber(450).shift(feedDecimals0), new BigNumber(500).shift(feedDecimals0), new BigNumber(1000).shift(feedDecimals0), new BigNumber(10000).shift(feedDecimals0), new BigNumber(100000).shift(feedDecimals0)];
-        function shiftBigNumberArray(data, decimals) {
-          var results = [];
-          // console.log("data: " + JSON.stringify(data));
-          if (data != null) {
-            data.forEach(function(d) {results.push(d.shift(decimals).toString());});
-          }
-          // console.log("results: " + JSON.stringify(results));
-          return results;
+      function shiftBigNumberArray(data, decimals) {
+        var results = [];
+        // console.log("data: " + JSON.stringify(data));
+        if (data != null) {
+          data.forEach(function(d) {results.push(d.shift(decimals).toString());});
         }
+        // console.log("results: " + JSON.stringify(results));
+        return results;
+      }
+
+      try {
+        var feedDecimals0 = this.optino.feedDecimals0;
+        logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
+        var spots = [new BigNumber("9769.26390498279639").shift(feedDecimals0), new BigNumber(50).shift(feedDecimals0), new BigNumber(100).shift(feedDecimals0), new BigNumber(150).shift(feedDecimals0), new BigNumber(200).shift(feedDecimals0), new BigNumber(250).shift(feedDecimals0), new BigNumber(300).shift(feedDecimals0), new BigNumber(350).shift(feedDecimals0), new BigNumber(400).shift(feedDecimals0), new BigNumber(450).shift(feedDecimals0), new BigNumber(500).shift(feedDecimals0), new BigNumber(1000).shift(feedDecimals0), new BigNumber(10000).shift(feedDecimals0), new BigNumber(100000).shift(feedDecimals0)];
+        logInfo("optinoExplorer", "spots: " + JSON.stringify(spots));
 
         var OPTINODECIMALS = 18;
         // logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
         // logInfo("optinoExplorer", "recalculates inputs([" + this.token0 + ", " + this.token1 + "], [" + this.feed0 + ", " + this.feed1 + "], " +
         //   "[" + this.type0 + ", " + this.type1 + ", " + this.decimals0 + ", " + this.decimals1 + ", " + this.inverse0 + ", " + this.inverse1 + "], " +
         //   "[callPut:" + this.callPut + ", expiry:" + this.expiry + ", strike:" + new BigNumber(this.strike).shift(feedDecimals0) + ", bound:" + new BigNumber(this.bound).shift(feedDecimals0) + ", tokens:" + new BigNumber(this.tokens).shift(OPTINODECIMALS) + "], [" + JSON.stringify(spots) + "])");
+        var bound = "0";
+        if (this.optino.vanillaOrBounded == 1) {
+          if (this.optino.callPut == 0) {
+            bound = this.optino.cap;
+          } else {
+            bound = this.optino.floor;
+          }
+        }
 
-        var _calcPayoff = promisify(cb => factory.calcPayoffs([this.token0, this.token1], [this.feed0, this.feed1],
-          [this.type0, this.type1, this.decimals0, this.decimals1, this.inverse0, this.inverse1],
-          [this.callPut, this.expiry, new BigNumber(this.strike).shift(feedDecimals0), new BigNumber(this.bound).shift(feedDecimals0), new BigNumber(this.tokens).shift(OPTINODECIMALS)], spots, cb));
+        var _calcPayoff = promisify(cb => factory.calcPayoffs([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
+          [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
+          [this.optino.callPut, parseInt(this.optino.expiryInMillis / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
 
         var calcPayoff = await _calcPayoff;
-        // logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
-        this.collateralTokenNew = calcPayoff[0];
-        this.collateralDecimalsNew = calcPayoff[1][2].toString();
-        this.collateralTokens = new BigNumber(calcPayoff[1][0]).shift(-this.collateralDecimalsNew).toString();
-        this.collateralFee = new BigNumber(calcPayoff[1][1]).shift(-this.collateralDecimalsNew).toString();
-        this.feedDecimals0 = parseInt(calcPayoff[1][3]);
-        this.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.feedDecimals0).toString();
-        this.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.collateralDecimalsNew).toString();
+        logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
+        this.optino.collateralToken = calcPayoff[0];
+        this.optino.collateralDecimals = calcPayoff[1][2].toString();
+        this.optino.collateralTokens = new BigNumber(calcPayoff[1][0]).shift(-this.optino.collateralDecimals).toString();
+        this.optino.collateralFee = new BigNumber(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
+        this.optino.feedDecimals0 = parseInt(calcPayoff[1][3]);
+        this.optino.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.optino.feedDecimals0).toString();
+        this.optino.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.optino.collateralDecimals).toString();
         this.payoffs = calcPayoff[2];
+        logInfo("optinoExplorer", "recalculate - optino " + JSON.stringify(this.optino));
         // logInfo("optinoExplorer", "collateralTokenNew " + this.collateralTokenNew);
         // logInfo("optinoExplorer", "collateralTokens " + this.collateralTokens);
         // logInfo("optinoExplorer", "collateralFee " + this.collateralFee);
@@ -1565,6 +1603,7 @@ const OptinoExplorer = {
         // logInfo("optinoExplorer", "_currentPayoff " + this.currentPayoff);
         // logInfo("optinoExplorer", "spots " + JSON.stringify(shiftBigNumberArray(spots, -feedDecimals0)));
         // logInfo("optinoExplorer", "calcPayoffs: " + JSON.stringify(shiftBigNumberArray(this.payoffs, -this.collateralDecimalsNew)));
+      } catch (e) {
       }
     },
     setCollateralAllowance(event) {
