@@ -1510,7 +1510,7 @@ const OptinoExplorer = {
 
       if (source == "setSeries") {
         logInfo("optinoExplorer", "recalculate - optino before: " + JSON.stringify(this.optino));
-        this.optino.callPut = event.callPut;
+        this.optino.callPut = parseInt(event.callPut);
         // this.optino.vanillaOrBounded = event.feed1;
         this.optino.feed0 = event.feeds[0];
         this.optino.feed1 = event.feeds[1];
@@ -1521,10 +1521,6 @@ const OptinoExplorer = {
         this.optino.decimals1 = event.feedParameters[3];
         this.optino.inverse0 = event.feedParameters[4];
         this.optino.inverse1 = event.feedParameters[5];
-
-        this.optino.strike = new BigNumber(event.strike).shift(-event.feedDecimals0).toString();
-        // this.optino.cap = event.cap;
-        // this.optino.floor = event.floor;
 
         this.optino.expiryInMillis = event.expiry * 1000;
 
@@ -1562,6 +1558,12 @@ const OptinoExplorer = {
       try {
         var feedDecimals0 = this.optino.feedDecimals0;
         logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
+        if (source == "setSeries") {
+          this.optino.strike = new BigNumber(event.strike).shift(-feedDecimals0).toString();
+          // this.optino.cap = event.cap;
+          // this.optino.floor = event.floor;
+        }
+
         var spots = [new BigNumber("9769.26390498279639").shift(feedDecimals0), new BigNumber(50).shift(feedDecimals0), new BigNumber(100).shift(feedDecimals0), new BigNumber(150).shift(feedDecimals0), new BigNumber(200).shift(feedDecimals0), new BigNumber(250).shift(feedDecimals0), new BigNumber(300).shift(feedDecimals0), new BigNumber(350).shift(feedDecimals0), new BigNumber(400).shift(feedDecimals0), new BigNumber(450).shift(feedDecimals0), new BigNumber(500).shift(feedDecimals0), new BigNumber(1000).shift(feedDecimals0), new BigNumber(10000).shift(feedDecimals0), new BigNumber(100000).shift(feedDecimals0)];
         logInfo("optinoExplorer", "spots: " + JSON.stringify(spots));
 
@@ -1581,7 +1583,7 @@ const OptinoExplorer = {
 
         var _calcPayoff = promisify(cb => factory.calcPayoffs([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
           [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
-          [this.optino.callPut, parseInt(this.optino.expiryInMillis / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
+          [this.optino.callPut, parseInt(/*this.optino.expiryInMillis*/ new Date() / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
 
         var calcPayoff = await _calcPayoff;
         logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
