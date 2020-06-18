@@ -39,7 +39,8 @@ const TokensExplorer = {
                   </template>
                   <b-card-body class="m-0 p-0">
                     <div>
-                      <b-tabs card v-model="addTokenTabIndex" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
+                      <!-- <b-tabs card v-model="addTokenTabIndex" content-class="m-0 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0" active-nav-item-class="m-0 p-0" active-tab-class="m-0 p-0"> -->
+                      <b-tabs small card v-model="addTokenTabIndex">
                         <b-tab size="sm" title="Search">
                           <b-container class="m-0 p-0">
                             <b-row>
@@ -109,7 +110,7 @@ const TokensExplorer = {
                              <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the token contract address in a block explorer</span>
                             </div>
                           </div>
-                          <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="commonTokenList" :fields="addTokenTableFields" :filter="searchCommon" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
+                          <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="commonTokenList" :fields="addTokenTableFields" :filter="searchCommon" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
                             <!--
                             <template v-slot:empty="scope">
                               <p class="pt-4">{{ scope.emptyText }}</p>
@@ -157,7 +158,7 @@ const TokensExplorer = {
                             </div>
                           </div>
 
-                          <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="fakeTokenList" :fields="addTokenTableFields" :filter="searchFake" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
+                          <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="fakeTokenList" :fields="addTokenTableFields" :filter="searchFake" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
                             <!--
                             <template v-slot:empty="scope">
                               <p class="pt-4">{{ scope.emptyText }}</p>

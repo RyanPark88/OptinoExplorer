@@ -2,6 +2,8 @@ var ADDRESS0 = "0x0000000000000000000000000000000000000000";
 var MILLISPERDAY = 60 * 60 * 24 * 1000;
 var DEFAULTEXPIRYUTCHOUR = 8;
 var DEFAULTEXPIRYUTCDAYOFWEEK = 5; // Friday moment.js
+var DEFAULTTYPE = 0xff;
+var DEFAULTDECIMAL = 0xff;
 
 function formatNumber(n) {
     return n == null ? "" : n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

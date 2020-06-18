@@ -183,6 +183,12 @@ const optinoFactoryModule = {
     seriesData: {},
     tokenData: {},
     optinoData: {},
+    optionTypes: [
+      { value: 0, text: 'Vanilla Call' },
+      { value: 1, text: 'Capped Call' },
+      { value: 2, text: 'Vanilla Put' },
+      { value: 3, text: 'Capped Put' },
+    ],
     typeOptions: [
       { value: 0xff, text: 'Default' },
       { value: 0, text: 'Chainlink v4' },
@@ -277,11 +283,11 @@ const optinoFactoryModule = {
     // },
     updateSeries(state, {seriesKey, series}) {
       Vue.set(state.seriesData, seriesKey, series);
-      // logInfo("optinoFactoryModule", "updateSeries(" + seriesKey + ", " + JSON.stringify(series) + ")")
+      logInfo("optinoFactoryModule", "updateSeries(" + seriesKey + ", " + JSON.stringify(series) + ")")
     },
     processingToken(state, address) {
       Vue.set(state.tokenData, address, {address: address, symbol: null, name: null, decimals: null, totalSupply: null, balance: null, allowance: null, source: null });
-      logInfo("optinoFactoryModule", "mutations.processingToken - state.tokenData[" + address + "]: " +  JSON.stringify(state.tokenData[address]));
+      // logInfo("optinoFactoryModule", "mutations.processingToken - state.tokenData[" + address + "]: " +  JSON.stringify(state.tokenData[address]));
     },
     updateToken(state, token) {
       // logInfo("optinoFactoryModule", "mutations.updateToken(" + JSON.stringify(token) + ")");
@@ -296,7 +302,7 @@ const optinoFactoryModule = {
         currentToken.allowance != token.allowance ||
         currentToken.source != token.source) {
         Vue.set(state.tokenData, token.address.toLowerCase(), {address: token.address, symbol: token.symbol, name: token.name, decimals: token.decimals, totalSupply: token.totalSupply, balance: token.balance, allowance: token.allowance, source: token.source });
-        logInfo("optinoFactoryModule", "mutations.updateToken - state.tokenData: " +  JSON.stringify(state.tokenData));
+        // logInfo("optinoFactoryModule", "mutations.updateToken - state.tokenData: " +  JSON.stringify(state.tokenData));
         // localStorage.setItem('tokenData', JSON.stringify(state.tokenData));
       // } else {
       //   logInfo("optinoFactoryModule", "mutations.updateToken - NOT UPDATED state.tokenData: " +  JSON.stringify(state.tokenData));
@@ -464,7 +470,7 @@ const optinoFactoryModule = {
                   callPut: callPut, expiry: expiry, strike: strike, bound: bound, spot: spot, timestamp: timestamp, optinos: optinos } });
               }
             }
-            
+
             var _feedLength = promisify(cb => factory.feedLength(cb));
             var feedLength = await _feedLength;
             // logInfo("optinoFactoryModule", "execWeb3() feedLength: " + feedLength);

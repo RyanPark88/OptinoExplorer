@@ -41,7 +41,7 @@ const FeedsExplorer = {
                 </template>
                 <b-card-body class="m-0 p-0">
                   <div>
-                    <b-tabs card v-model="addFeedTabIndex" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
+                    <b-tabs small card v-model="addFeedTabIndex" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
                       <b-tab size="sm" title="Search">
                         <b-container class="m-0 p-0">
                           <b-row>
@@ -112,7 +112,7 @@ const FeedsExplorer = {
                            <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
                           </div>
                         </div>
-                        <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="registeredFeeds" :fields="addFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked">
+                        <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="addFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked">
                           <!--
                           <template v-slot:empty="scope">
                             <p class="pt-4">{{ scope.emptyText }}</p>
@@ -478,9 +478,9 @@ const FeedsExplorer = {
       addFeedFields: [
         { key: 'name', label: 'Name', sortable: true },
         { key: 'type', label: 'Type', sortable: true },
-        { key: 'decimals', label: 'Decimals', sortable: true, tdClass: 'text-right' },
+        { key: 'decimals', label: 'Decimals', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'note', label: 'Note', sortable: true },
-        { key: 'spot', label: 'Spot', sortable: true },
+        { key: 'spot', label: 'Spot', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'hasData', label: 'Data?', sortable: true },
         { key: 'timestamp', label: 'Timestamp', formatter: d => { return new Date(d*1000).toLocaleString(); }, sortable: true },
         { key: 'address', label: 'Address', sortable: true },

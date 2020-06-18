@@ -21,7 +21,7 @@ const OptinoExplorer = {
                     <b-form-select size="sm" :options="seriesPageOptions" v-model="seriesPerPage" v-b-popover.hover="'Select page size'"/>
                   </div>
                   <div class="pr-1">
-                    <b-button size="sm" class="m-0 p-0" href="#" @click="$bvModal.show('bv-modal-mintoptino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
+                    <b-button size="sm" class="m-0 p-0" href="#" @click="$bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
                   </div>
                   <!--
                   <div class="pr-1">
@@ -35,68 +35,288 @@ const OptinoExplorer = {
                   -->
                 </div>
 
-                <b-modal v-model="showForDevelopment" id="bv-modal-mintoptino" size="xl" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-1 p-1">
+                <b-modal v-model="optino.show" id="bv-modal-optino" size="lg" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-1 p-1">
                   <template v-slot:modal-title>
-                    Mint Optinos [{{ networkName }}]
+                    Optinos [{{ networkName }}]
                   </template>
-                  <b-card no-body bg-variant="light" class="m-0 mt-3 p-2" header-class="m-0 p-0" header="Select Spot Rate">
-                    <div>
-                      <b-card no-body>
-                        <!-- <b-tabs pills card vertical end v-model="spotRateMode"> -->
-                        <b-tabs card v-model="spotRateMode">
-                          <b-tab title="Single Registered Feed">
-                            <b-card-text>
-                              <div class="d-flex m-0 p-0" style="height: 37px;">
-                                <div class="pr-1">
-                                  <b-form-input type="text" size="sm" v-model.trim="searchFeed0" debounce="600" placeholder="Search..." v-b-popover.hover="'Search'"></b-form-input>
-                                </div>
-                                <div class="pr-1 flex-grow-1">
-                                </div>
-                                <div class="pr-1">
-                                 <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
-                                </div>
-                              </div>
-                              <!-- <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="registeredFeeds" :fields="addFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked"> -->
-                              <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="multi" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked">
-                                <template v-slot:cell(name)="data">
-                                  <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>
-                                </template>
-                                <template v-slot:cell(note)="data">
-                                  <span v-b-popover.hover="data.item.note">{{ truncate(data.item.note, 32) }}</span>
-                                </template>
-                                <template v-slot:cell(spot)="data">
-                                  <span class="text-right">{{ data.item.spot.shift(-data.item.decimals).toString() }} </span>
-                                </template>
-                                <template v-slot:cell(timestamp)="data">
-                                  <span class="text-right">{{ new Date(data.item.timestamp*1000).toLocaleString() }} </span>
-                                </template>
-                                <template v-slot:cell(address)="data">
-                                  <b-link :href="explorer + 'token/' + data.item.address" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
-                                </template>
-                              </b-table>
-                              </b-card-text>
-                          </b-tab>
-                          <b-tab title="Dual Registered Feeds"><b-card-text>Dual Feeds</b-card-text></b-tab>
-                          <b-tab title="Custom Feeds"><b-card-text>Custom Feeds</b-card-text></b-tab>
-                        </b-tabs>
-                      </b-card>
-                    </div>
-                    <!--
-                    <div>
-                      <b-tabs card v-model="addTokenTabIndex" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
-                        <b-tab size="sm" title="Search">
-                        </b-tab>
-                      </b-tabs>
-                    </div>
-                    -->
-                    <b-form-group class="mt-2" label-cols="3" label="Calculated spot">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="calculatedSpot" readonly placeholder="Retrieving latest rate"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    {{ spotRateMode }}
+                  <b-card no-body bg-variant="light" class="m-1 p-1">
+                    <b-card-body class="m-1 p-1">
+                      <b-form-group label-cols="4" label-size="sm" label="Type">
+                        <b-form-radio-group size="sm" v-model="optino.callPut" @input="recalculate('callPut', $event)">
+                          <b-form-radio value="0">Call</b-form-radio>
+                          <b-form-radio value="1">Put</b-form-radio>
+                        </b-form-radio-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="" v-if="optino.callPut == 0">
+                        <b-form-radio-group size="sm" v-model="optino.vanillaOrBounded" @input="recalculate('callPut', $event)">
+                          <b-form-radio value="0">Vanilla Call</b-form-radio>
+                          <b-form-radio value="1">Capped Call</b-form-radio>
+                        </b-form-radio-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="" v-if="optino.callPut != 0">
+                        <b-form-radio-group size="sm" v-model="optino.vanillaOrBounded" @input="recalculate('callPut', $event)">
+                          <b-form-radio value="0">Vanilla Put</b-form-radio>
+                          <b-form-radio value="1">Floored Put</b-form-radio>
+                        </b-form-radio-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="Spot">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Click to select"></b-form-input>
+                          <b-input-group-append>
+                            <b-button size="sm" @click="recalculateFeed('show', $event); $bvModal.show('bv-modal-optinoFeed')" variant="primary" v-b-popover.hover="'Select spot'">{{ feedName(optino) }}</b-button>
+                          </b-input-group-append>
+                        </b-input-group>
+                      </b-form-group>
+
+                      <b-form-group label-cols="4" label-size="sm" label="Strike">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.strike" @input="recalculate('strike', $event)"></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="Cap" description="Cap (bound) for Capped Call. Set to 0 for Vanilla Call" v-if="optino.callPut == 0 && optino.vanillaOrBounded != 0">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.cap" @input="recalculate('cap', $event)"></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="Floor" description="Floor (bound) for Floored Put. Set to 0 for Vanilla Put" v-if="optino.callPut != 0 && optino.vanillaOrBounded != 0">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.floor" @input="recalculate('floor', $event)"></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+
+                      <b-form-group label-cols="4" label-size="sm" label="Expiry" :description="'Selection in your local timezone. In UTC format: ' + formatUTC(expiryInMillis) + '. Time defaults to 08:00:00Z (UTC)'">
+                        <b-input-group>
+                          <!-- <b-form-input type="text" v-model.trim="expiry"></b-form-input> -->
+                          <flat-pickr v-model="optino.expiryInMillis" :config="dateConfig" class="form-control form-control-sm w-50" @input="recalculate('expiryInMillis', $event)"></flat-pickr>
+                          <template v-slot:append>
+                            <b-form-select size="sm" v-model.trim="optino.expirySelection" :options="expiryOptions" @input="expirySelected($event)"></b-form-select>
+                          </template>
+                        </b-input-group>
+                      </b-form-group>
+
+                      <b-form-group label-cols="4" label-size="sm" label="Base token">
+                        <b-input-group>
+                          <!-- <b-form-select v-model="token0" :options="tokenOptions" class="mt-3"></b-form-select> -->
+                          <b-form-select size="sm" v-model="optino.token0" :options="tokenOptionsSorted" @input="recalculate('token0', $event)"></b-form-select>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="Quote token">
+                        <b-input-group>
+                          <!-- <b-form-input type="text" v-model.trim="token1"></b-form-input> -->
+                          <b-form-select size="sm" v-model="optino.token1" :options="tokenOptionsSorted" @input="recalculate('token1', $event)"></b-form-select>
+                        </b-input-group>
+                      </b-form-group>
+
+                      <b-form-group label-cols="4" label-size="sm" label="Tokens">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+
+                      <b-form-group label-cols="4" label-size="sm" label="collateralTokenNew">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="collateralTokenNew" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="collateralTokens">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="collateralTokens" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="collateralDecimalsNew">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="collateralDecimalsNew" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="collateralFee">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="collateralFee" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="feedDecimals0">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="feedDecimals0" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="currentSpot">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="currentSpot" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="currentPayoff">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="currentPayoff" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+                      <b-form-group label-cols="4" label-size="sm" label="payoffs">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" :value="payoffs == null ? '' : JSON.stringify(payoffs)" readonly></b-form-input>
+                        </b-input-group>
+                      </b-form-group>
+
+
+                    </b-card-body>
                   </b-card>
                 </b-modal>
+
+                <b-modal v-model="optino.showFeed" id="bv-modal-optinoFeed" size="xl" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-0 p-0">
+                  <template v-slot:modal-title>
+                    Spot - {{ feedName(optino) }}
+                  </template>
+                  <!-- <b-card no-body bg-variant="light" class="m-0 p-0" class="border-0"> -->
+                  <b-card no-body bg-variant="light" class="m-1 p-1">
+                    <b-card-body class="m-1 p-1">
+                      <b-tabs small card v-model="optinoFeedMode" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
+                        <b-tab title="Spot">
+                          <b-card-text>
+                            <div class="d-flex m-0 p-0" style="height: 37px;">
+                              <div class="pr-1">
+                                <b-form-input type="text" size="sm" v-model.trim="searchFeed0" debounce="600" placeholder="Search..." v-b-popover.hover="'Search'"></b-form-input>
+                              </div>
+                              <div class="pr-1 flex-grow-1">
+                              </div>
+                              <div class="pr-1">
+                               <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
+                              </div>
+                            </div>
+                            <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="singleFeedSelectionRowClicked">
+                              <template v-slot:cell(name)="data">
+                                <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>
+                              </template>
+                              <template v-slot:cell(type)="data">
+                                <b-form-select plain size="sm" v-model.trim="data.item.type" :options="typeOptions" disabled></b-form-select>
+                              </template>
+                              <template v-slot:cell(note)="data">
+                                <span v-b-popover.hover="data.item.note">{{ truncate(data.item.note, 32) }}</span>
+                              </template>
+                              <template v-slot:cell(spot)="data">
+                                <span class="text-right">{{ data.item.spot.shift(-data.item.decimals).toString() }} </span>
+                              </template>
+                              <template v-slot:cell(timestamp)="data">
+                                <span class="text-right">{{ new Date(data.item.timestamp*1000).toLocaleString() }} </span>
+                              </template>
+                              <template v-slot:cell(address)="data">
+                                <b-link :href="explorer + 'token/' + data.item.address" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
+                              </template>
+                              <template v-slot:cell(selected)="data">
+                                <b-icon-check2 font-scale="1.4" v-if="data.item.address == optino.feed0"></b-icon-check2>
+                              </template>
+                            </b-table>
+                          </b-card-text>
+                        </b-tab>
+                        <b-tab title="Cross">
+                          <b-card-text>
+                            <div class="d-flex m-0 p-0" style="height: 37px;">
+                              <div class="pr-1">
+                                <b-form-input type="text" size="sm" v-model.trim="searchFeed0" debounce="600" placeholder="Search..." v-b-popover.hover="'Search'"></b-form-input>
+                              </div>
+                              <div class="pr-1 flex-grow-1">
+                              </div>
+                              <div class="pr-1">
+                               <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
+                              </div>
+                            </div>
+                            <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
+                              <template v-slot:cell(name)="data">
+                                <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>
+                              </template>
+                              <template v-slot:cell(type)="data">
+                                <b-form-select plain size="sm" v-model.trim="data.item.type" :options="typeOptions" disabled></b-form-select>
+                              </template>
+                              <template v-slot:cell(note)="data">
+                                <span v-b-popover.hover="data.item.note">{{ truncate(data.item.note, 32) }}</span>
+                              </template>
+                              <template v-slot:cell(spot)="data">
+                                <span class="text-right">{{ data.item.spot.shift(-data.item.decimals).toString() }} </span>
+                              </template>
+                              <template v-slot:cell(timestamp)="data">
+                                <span class="text-right">{{ new Date(data.item.timestamp*1000).toLocaleString() }} </span>
+                              </template>
+                              <template v-slot:cell(address)="data">
+                                <b-link :href="explorer + 'token/' + data.item.address" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.address + ' on the block explorer'">{{ truncate(data.item.address, 10) }}</b-link>
+                              </template>
+                              <template v-slot:cell(selected)="data">
+                                <!-- <b-icon-check2 font-scale="1.4" v-if="data.item.address == optino.feed0"></b-icon-check2> -->
+                                <b-dropdown size="sm" variant="link" toggle-class="m-0 p-0" menu-class="m-0 p-0" button-class="m-0 p-0" no-caret v-b-popover.hover="'Select feeds'">
+                                  <template v-slot:button-content>
+                                    <b-icon-three-dots class="rounded-circle" shift-v="-2" font-scale="1.4" v-if="data.item.address != optino.feed0 && data.item.address != optino.feed1"></b-icon-three-dots><span class="sr-only">Submenu</span>
+                                    <span v-if="data.item.address == optino.feed0">First Feed</span>
+                                    <span v-if="data.item.address == optino.feed1">Second Feed</span>
+                                  </template>
+                                  <b-dropdown-item-button size="sm" @click="dualFeedFirstFeed(data.item.address)" :disabled="data.item.address == optino.feed1"><span style="font-size: 90%">Use As First Feed</span></b-dropdown-item-button>
+                                  <b-dropdown-item-button size="sm" @click="dualFeedSecondFeed(data.item.address)" :disabled="data.item.address == optino.feed0"><span style="font-size: 90%">Use As Second Feed</span></b-dropdown-item-button>
+                                </b-dropdown>
+                              </template>
+                            </b-table>
+                          </b-card-text>
+                        </b-tab>
+                        <b-tab title="Custom">
+                          <b-card-text>
+                            <b-form>
+                              <b-form-group label-cols="5" label-size="sm" label="First feed">
+                                <b-input-group>
+                                  <b-form-select size="sm" v-model="optino.feed0" :options="feedSelectionsSorted0" @input="recalculateFeed('feed0', $event)"></b-form-select>
+                                </b-input-group>
+                              </b-form-group>
+                              <b-form-group label-cols="5" label-size="sm" label="Second feed">
+                                <b-input-group>
+                                  <b-form-select size="sm" v-model="optino.feed1" :options="feedSelectionsSorted1" v-on:change="recalculateFeed('feed1', $event)"></b-form-select>
+                                </b-input-group>
+                              </b-form-group>
+                              <b-form-group label-cols="5" label-size="sm" label="First feed type">
+                                <b-input-group>
+                                  <b-form-select size="sm" v-model.trim="optino.type0" :options="typeOptions" v-on:change="recalculateFeed('type0', $event)"></b-form-select>
+                                </b-input-group>
+                              </b-form-group>
+                              <b-form-group label-cols="5" label-size="sm" label="Second feed type">
+                                <b-input-group>
+                                  <b-form-select size="sm" v-model.trim="optino.type1" :options="typeOptions" v-on:change="recalculateFeed('type1', $event)"></b-form-select>
+                                </b-input-group>
+                              </b-form-group>
+                              <b-form-group label-cols="5" label-size="sm" label="First feed decimal places">
+                                <b-input-group>
+                                  <b-form-select size="sm" v-model.trim="optino.decimals0" :options="decimalsOptions" v-on:change="recalculateFeed('decimals0', $event)"></b-form-select>
+                                </b-input-group>
+                              </b-form-group>
+                              <b-form-group label-cols="5" label-size="sm" label="Second feed decimal places">
+                                <b-input-group>
+                                  <b-form-select size="sm" v-model.trim="optino.decimals1" :options="decimalsOptions" v-on:change="recalculateFeed('decimals1', $event)"></b-form-select>
+                                </b-input-group>
+                              </b-form-group>
+                            </b-form>
+                          </b-card-text>
+                        </b-tab>
+                      </b-tabs>
+                      <b-form-group label-cols="5" label-size="sm" class="mt-2" :label="optino.feed1 != null && optino.feed1 != ADDRESS0 || optinoFeedMode != 0 ? 'Inverse first feed rate?' : 'Inverse feed rate?'">
+                        <b-form-radio-group size="sm" v-model="optino.inverse0" @input="recalculateFeed('inverse0', $event)">
+                          <b-form-radio value="0">No</b-form-radio>
+                          <b-form-radio value="1">Yes</b-form-radio>
+                        </b-form-radio-group>
+                      </b-form-group>
+                      <b-form-group label-cols="5" label-size="sm" v-if="optino.feed1 != null && optino.feed1 != ADDRESS0 || optinoFeedMode != 0" label="Inverse second feed rate?">
+                        <b-form-radio-group size="sm" v-model="optino.inverse1" @input="recalculateFeed('inverse1', $event)">
+                          <b-form-radio value="0">No</b-form-radio>
+                          <b-form-radio value="1">Yes</b-form-radio>
+                        </b-form-radio-group>
+                      </b-form-group>
+                      <b-form-group label-cols="5" label-size="sm" label="Reference spot rate">
+                        <b-input-group>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Select feed above"></b-form-input>
+                          <b-input-group-append>
+                            <b-button size="sm" variant="outline-primary" disabled v-b-popover.hover="'Name of reference spot rate'">{{ feedName(optino) }}</b-button>
+                          </b-input-group-append>
+                        </b-input-group>
+                      </b-form-group>
+                      <div class="d-flex justify-content-end m-0 pt-2" style="height: 37px;">
+                        <div class="pr-1">
+                          <b-button size="sm" @click="$bvModal.hide('bv-modal-optinoFeed')">Close</b-button>
+                        </div>
+                      </div>
+                    </b-card-body>
+                  </b-card>
+                </b-modal>
+
+
 
                 <b-table style="font-size: 85%;" small striped selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['base', 'quote', 'feed0', 'feed1', 'type', 'strike', 'bound', 'optino', 'cover']" show-empty>
                   <template v-slot:cell(base)="data">
@@ -552,10 +772,9 @@ const OptinoExplorer = {
 
       reschedule: false,
 
-      spotRateMode: 0,
+      optinoFeedMode: 0,
       searchFeed0: null,
 
-      showForDevelopment: true,
 
       seriesSearch: null,
       seriesCurrentPage: 1,
@@ -567,6 +786,47 @@ const OptinoExplorer = {
         { text: "50", value: 50 },
         { text: "All", value: 0 },
       ],
+
+      optino: {
+        show: true,
+        showFeed: false,
+
+        callPut: 0,
+        vanillaOrBounded: 0,
+
+        feed0: "0x8468b2bdce073a157e560aa4d9ccf6db1db98507",
+        feed1: "0x0000000000000000000000000000000000000000",
+        type0: 0xff,
+        type1: 0xff,
+        decimals0: 0xff,
+        decimals1: 0xff,
+        inverse0: 0,
+        inverse1: 0,
+        feedDecimals0: null,
+        calculatedSpot: null,
+
+        strike: "250",
+        cap: "500",
+        floor: "150",
+
+        expiryInMillis: moment().utc().add(moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf() < moment() ? 1 : 0, 'd').add(1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf(),
+        expirySelection: "+1d",
+
+        token0: "0x452a2652d1245132f7f47700c24e217faceb1c6c",
+        token1: "0x2269fbd941938ac213719cd3487323a0c75f1667",
+
+        tokens: "10",
+
+        collateralToken: null,
+        collateralTokens: null,
+        collateralDecimals: null,
+        collateralFee: null,
+
+        currentSpot: null,
+        currentPayoff: null,
+        payoffs: null,
+
+      },
 
       token0: "0x452a2652d1245132f7f47700c24e217faceb1c6c",
       token1: "0x2269fbd941938ac213719cd3487323a0c75f1667",
@@ -701,10 +961,10 @@ const OptinoExplorer = {
       ],
       selectFeedFields: [
         { key: 'name', label: 'Name', sortable: true },
-        // { key: 'type', label: 'Type', sortable: true },
-        // { key: 'decimals', label: 'Decimals', sortable: true, tdClass: 'text-right' },
+        { key: 'type', label: 'Type', sortable: true },
+        { key: 'decimals', label: 'Decimals', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'note', label: 'Note', sortable: true },
-        { key: 'spot', label: 'Spot', sortable: true },
+        { key: 'spot', label: 'Spot', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'hasData', label: 'Data?', sortable: true },
         { key: 'timestamp', label: 'Timestamp', formatter: d => { return new Date(d*1000).toLocaleString(); }, sortable: true },
         { key: 'address', label: 'Address', sortable: true },
@@ -915,12 +1175,21 @@ const OptinoExplorer = {
     //   return results;
     // },
     feedSelectionsSorted0() {
+      var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
       var feedData = store.getters['feeds/feedData'];
       var sortedData = [];
+      for (var address in registeredFeedData) {
+        var feed = registeredFeedData[address];
+        if (feed.source == "registered") {
+          sortedData.push(feed);
+        }
+      }
       for (address in feedData) {
         var feed = feedData[address];
-        // console.log("feedSelectionsSorted: " + address + " => " + JSON.stringify(feed));
-        sortedData.push(feed);
+        if (typeof registeredFeedData[address] === "undefined" && feed.source != "registered") {
+          // console.log("feedSelectionsSorted0: " + address + " => " + JSON.stringify(feed));
+          sortedData.push(feed);
+        }
       }
       sortedData.sort(function(a, b) {
         return ('' + a.sortKey).localeCompare(b.sortKey);
@@ -928,17 +1197,26 @@ const OptinoExplorer = {
       var results = [];
       var t = this;
       sortedData.forEach(function(e) {
-        results.push({ value: e.address, text: e.address.substring(0, 10) + " " + e.name + " " + parseFloat(new BigNumber(e.spot).shift(-e.decimals).toFixed(9)) + " " + new Date(e.timestamp*1000).toLocaleString(), disabled: e.address == t.feed1 });
+        results.push({ value: e.address, text: e.address.substring(0, 10) + " " + e.name + " " + parseFloat(new BigNumber(e.spot).shift(-e.decimals).toFixed(9)) + " " + new Date(e.timestamp*1000).toLocaleString() /*, disabled: e.address == t.feed1*/ });
       });
       return results;
     },
     feedSelectionsSorted1() {
+      var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
       var feedData = store.getters['feeds/feedData'];
       var sortedData = [];
+      for (var address in registeredFeedData) {
+        var feed = registeredFeedData[address];
+        if (feed.source == "registered") {
+          sortedData.push(feed);
+        }
+      }
       for (address in feedData) {
         var feed = feedData[address];
-        // console.log("feedSelectionsSorted1: " + address + " => " + JSON.stringify(feed));
-        sortedData.push(feed);
+        if (typeof registeredFeedData[address] === "undefined" && feed.source != "registered") {
+          // console.log("feedSelectionsSorted0: " + address + " => " + JSON.stringify(feed));
+          sortedData.push(feed);
+        }
       }
       sortedData.sort(function(a, b) {
         return ('' + a.sortKey).localeCompare(b.sortKey);
@@ -947,15 +1225,13 @@ const OptinoExplorer = {
       results.push({ value: "0x0000000000000000000000000000000000000000", text: "(Select optional second feed)", disabled: false });
       var t = this;
       sortedData.forEach(function(e) {
-        var disabled = e.address === t.feed0;
-        results.push({ value: e.address, text: e.address.substring(0, 10) + " " + e.name + " " + parseFloat(new BigNumber(e.spot).shift(-e.decimals).toFixed(9)) + " " + new Date(e.timestamp*1000).toLocaleString(), disabled: e.address == t.feed0 });
+        results.push({ value: e.address, text: e.address.substring(0, 10) + " " + e.name + " " + parseFloat(new BigNumber(e.spot).shift(-e.decimals).toFixed(9)) + " " + new Date(e.timestamp*1000).toLocaleString() /*, disabled: e.address == t.feed1 */ });
       });
       return results;
     },
     registeredFeeds() {
       var results = [];
       var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
-      var feedData = store.getters['feeds/feedData'];
       for (var address in registeredFeedData) {
         var feed = registeredFeedData[address];
         if (feed.source == "registered") {
@@ -978,6 +1254,80 @@ const OptinoExplorer = {
     this.reschedule = false;
   },
   methods: {
+    singleFeedSelectionRowClicked(record, index) {
+      this.optino.feed0 = record.address;
+      this.optino.feed1 = ADDRESS0;
+      this.optino.type0 = DEFAULTTYPE;
+      this.optino.type1 = DEFAULTTYPE;
+      this.optino.decimals0 = DEFAULTDECIMAL;
+      this.optino.decimals1 = DEFAULTDECIMAL;
+      // this.optino.inverse0
+      this.optino.inverse1 = 0;
+      this.recalculateFeed("singleFeedSelectionRowClicked", record)
+    },
+    dualFeedFirstFeed(address) {
+      this.optino.feed0 = address;
+      this.optino.type0 = DEFAULTTYPE;
+      this.optino.type1 = DEFAULTTYPE;
+      this.optino.decimals0 = DEFAULTDECIMAL;
+      this.optino.decimals1 = DEFAULTDECIMAL;
+      this.recalculateFeed("dualFeedFirstFeed", address)
+    },
+    dualFeedSecondFeed(address) {
+      this.optino.feed1 = address;
+      this.optino.type0 = DEFAULTTYPE;
+      this.optino.type1 = DEFAULTTYPE;
+      this.optino.decimals0 = DEFAULTDECIMAL;
+      this.optino.decimals1 = DEFAULTDECIMAL;
+      this.recalculateFeed("dualFeedSecondFeed", address)
+    },
+    feedName(o) {
+      // var results = [];
+      var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
+      // var feedData = store.getters['feeds/feedData'];
+      // for (var address in registeredFeedData) {
+      //   var feed = registeredFeedData[address];
+      //   if (feed.source == "registered") {
+      //     results.push(feed);
+      //   }
+      // }
+      // results.sort(function(a, b) {
+      //   return ('' + a.sortKey).localeCompare(b.sortKey);
+      // });
+      // return results;
+      var result = "";
+      if (o.feed0 != null) {
+        if (o.inverse0 != 0) {
+          result = result + "Inv("
+        }
+        var feed0 = registeredFeedData[o.feed0];
+        if (feed0 != null && o.type0 == DEFAULTTYPE && o.decimals0 == DEFAULTDECIMAL) {
+          result = result + feed0.name;
+        } else {
+          result = result + "Custom";
+        }
+        if (o.inverse0 != 0) {
+          result = result + ")"
+        }
+      }
+      if (o.feed1 != null && o.feed1 != ADDRESS0) {
+        result = result + "*";
+        if (o.inverse1 != 0) {
+          result = result + "Inv("
+        }
+        var feed1 = registeredFeedData[o.feed1];
+        if (feed1 != null && o.type1 == DEFAULTTYPE && o.decimals1 == DEFAULTDECIMAL) {
+          result = result + feed1.name;
+        } else {
+          result = result + "Custom";
+        }
+        if (o.inverse1 != 0) {
+          result = result + ")"
+        }
+      }
+
+      return result;
+    },
     formatUTC(d) {
       return moment(d).utc().format();
     },
@@ -1113,18 +1463,36 @@ const OptinoExplorer = {
         if (match != null) {
           if (match[1] == "+") {
             var check = moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
-            this.expiryInMillis = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'd').add(parseInt(match[2]), match[3]).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf();
-            logInfo("expirySelected", "expirySelected(" + expiryString + ") => " + this.expiryInMillis);
+            this.optino.expiryInMillis = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'd').add(parseInt(match[2]), match[3]).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf();
+            logInfo("expirySelected", "expirySelected(" + expiryString + ") => " + this.optino.expiryInMillis);
           } else if (match[1] == "e" && match[3] == "w") {
             var check = moment().utc().day(DEFAULTEXPIRYUTCDAYOFWEEK).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
-            this.expiryInMillis = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'w').add(parseInt(match[2]), match[3]).day(DEFAULTEXPIRYUTCDAYOFWEEK).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf();
-            logInfo("expirySelected", "expirySelected(" + expiryString + ") => " + this.expiryInMillis);
+            this.optino.expiryInMillis = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'w').add(parseInt(match[2]), match[3]).day(DEFAULTEXPIRYUTCDAYOFWEEK).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf();
+            logInfo("expirySelected", "expirySelected(" + expiryString + ") => " + this.optino.expiryInMillis);
           } else if (match[1] == "e" && match[3] == "M") {
             var check = moment().utc().add(1, 'M').date(1).add(-1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
-            this.expiryInMillis = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'M').add(parseInt(match[2]), match[3]).add(1, 'M').date(1).add(-1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf();
-            logInfo("expirySelected", "expirySelected(" + expiryString + ") => " + this.expiryInMillis);
+            this.optino.expiryInMillis = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'M').add(parseInt(match[2]), match[3]).add(1, 'M').date(1).add(-1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf();
+            logInfo("expirySelected", "expirySelected(" + expiryString + ") => " + this.optino.expiryInMillis);
           }
         }
+      }
+    },
+    async recalculateFeed(source, event) {
+      logInfo("optinoExplorer", "recalculateFeed(" + source + ", " + JSON.stringify(event) + ")");
+      var factoryAddress = store.getters['optinoFactory/address']
+      var factory = web3.eth.contract(OPTINOFACTORYABI).at(factoryAddress);
+      var feedType0 = null;
+      // logInfo("optinoExplorer", "recalculateFeed feedParameters:" + JSON.stringify([this.type0, this.type1, this.decimals0, this.decimals1, this.inverse0, this.inverse1]));
+      try {
+        var _calculateSpot = promisify(cb => factory.calculateSpot([this.optino.feed0, this.optino.feed1],
+          [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1], cb));
+        var calculateSpot = await _calculateSpot;
+        logInfo("optinoExplorer", "recalculateFeed - calculateSpot: " + JSON.stringify(calculateSpot));
+        this.optino.feedDecimals0 = calculateSpot[0];
+        feedType0 = calculateSpot[1];
+        this.optino.calculatedSpot = calculateSpot[2].shift(-this.optino.feedDecimals0).toString();
+      } catch (e) {
+        this.optino.calculatedSpot = null;
       }
     },
     async recalculate(source, event) {
