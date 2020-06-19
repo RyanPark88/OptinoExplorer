@@ -1269,7 +1269,7 @@ const OptinoExplorer = {
           opacity: [0.85, 0.75, 0.35, 0.45],
         },
         markers: {
-          size: [3, 2, 1, 1],
+          size: [3, 2, 0, 1],
         },
         title: {
           text: "Payoff", // this.title,
@@ -1308,8 +1308,7 @@ const OptinoExplorer = {
             },
             labels: {
               formatter: function (value) {
-                return parseFloat(parseFloat(value).toPrecision(3));
-                // return value == null ? null : value.toFixed(2);
+                return value == null ? null : parseFloat(parseFloat(value).toPrecision(3));
               },
               style: {
                 colors: '#00cc66',
@@ -1325,7 +1324,7 @@ const OptinoExplorer = {
             show: false,
             labels: {
               formatter: function (value) {
-                return value == null ? null : value.toFixed(2);
+                return value == null ? null : parseFloat(parseFloat(value).toPrecision(3));
               },
               style: {
                 colors: '#008FFB',
@@ -1338,7 +1337,7 @@ const OptinoExplorer = {
             show: false,
             labels: {
               formatter: function (value) {
-                return value == null ? null : value.toFixed(2);
+                return value == null ? null : parseFloat(parseFloat(value).toPrecision(3));
               },
               style: {
                 colors: '#008FFB',
@@ -1364,7 +1363,7 @@ const OptinoExplorer = {
             },
             labels: {
               formatter: function (value) {
-                return value == null ? null : value.toFixed(2);
+                return value == null ? null : parseFloat(parseFloat(value).toPrecision(3));
               },
               style: {
                 colors: '#ff00ff',
