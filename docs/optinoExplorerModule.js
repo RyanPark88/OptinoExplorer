@@ -148,11 +148,13 @@ const OptinoExplorer = {
                           <b-form-input size="sm" type="text" v-model.trim="optino.collateralTokensPlusFee" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
+                      <!--
                       <b-form-group label-cols="4" label-size="sm" label="feedDecimals0">
                         <b-input-group>
                           <b-form-input size="sm" type="text" v-model.trim="optino.feedDecimals0" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
+                      -->
                       <b-form-group label-cols="4" label-size="sm" label="currentSpot">
                         <b-input-group>
                           <b-form-input size="sm" type="text" v-model.trim="optino.currentSpot" readonly></b-form-input>
@@ -163,12 +165,15 @@ const OptinoExplorer = {
                           <b-form-input size="sm" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
+                      <!--
                       <b-form-group label-cols="4" label-size="sm" label="payoffs">
                         <b-input-group>
                           <b-form-input size="sm" type="text" :value="payoffs == null ? '' : JSON.stringify(payoffs)" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
+                      -->
 
+                      <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
 
                     </b-card-body>
                   </b-card>
@@ -804,7 +809,7 @@ const OptinoExplorer = {
       ],
 
       optino: {
-        show: true,
+        show: false,
         showFeed: false,
 
         optionType: 'vc',
@@ -840,7 +845,15 @@ const OptinoExplorer = {
 
         currentSpot: null,
         currentPayoff: null,
-        payoffs: null,
+
+        chartSeries: [],
+        // payoffSeries: [],
+        // coverPayoffSeries: [],
+        // collateralSeries: [],
+        // payoffsInNonDeliveryTokenSeries: [],
+
+        spotFrom: "0",
+        spotTo: "200",
 
       },
 
@@ -873,39 +886,6 @@ const OptinoExplorer = {
       currentPayoff: null,
       payoffs: null,
 
-      // TODO Delete
-      // baseTokens: "0.1",
-
-      // typeOptions: [
-      //   { value: 0xff, text: 'Default' },
-      //   { value: 0, text: 'Chainlink v4' },
-      //   { value: 1, text: 'Chainlink v6' },
-      //   { value: 2, text: 'MakerDAO' },
-      //   { value: 3, text: 'Adaptor' },
-      // ],
-      // decimalsOptions: [
-      //   { value: 0xff, text: 'Default' },
-      //   { value: 18, text: '18' },
-      //   { value: 17, text: '17' },
-      //   { value: 16, text: '16' },
-      //   { value: 15, text: '15' },
-      //   { value: 14, text: '14' },
-      //   { value: 13, text: '13' },
-      //   { value: 12, text: '12' },
-      //   { value: 11, text: '11' },
-      //   { value: 10, text: '10' },
-      //   { value: 9, text: '9' },
-      //   { value: 8, text: '8' },
-      //   { value: 7, text: '7' },
-      //   { value: 6, text: '6' },
-      //   { value: 5, text: '5' },
-      //   { value: 4, text: '4' },
-      //   { value: 3, text: '3' },
-      //   { value: 2, text: '2' },
-      //   { value: 1, text: '1' },
-      //   { value: 0, text: '0' },
-      // ],
-
       expired: false,
       selectedSeries: null,
       configKey: "",
@@ -918,7 +898,7 @@ const OptinoExplorer = {
       maxTerm: null,
       fee: "0",
       description: "",
-      // callPut: 0,
+
       optinoTypes: [
         {
           label: 'Calls',
@@ -934,10 +914,6 @@ const OptinoExplorer = {
             { value: 'fp', text: 'Floored Put' },
           ]
         },
-      ],
-      callPutOptions: [
-        { value: 0, text: 'Call' },
-        { value: 1, text: 'Put' },
       ],
       expirySelection: "+1d",
       expiryOptions: [
@@ -1275,6 +1251,148 @@ const OptinoExplorer = {
       });
       return results;
     },
+    chartOptions() {
+      return {
+        chart: {
+          height: 600,
+          type: 'line',
+          stacked: false,
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          width: [5, 4, 10, 3]
+        },
+        fill: {
+          type: 'solid',
+          opacity: [0.85, 0.75, 0.35, 0.45],
+        },
+        markers: {
+          size: [3, 2, 1, 1],
+        },
+        title: {
+          text: "Payoff", // this.title,
+          align: 'left',
+          offsetX: 0, // 110,
+        },
+        xaxis: {
+          type: 'numeric',
+          min: parseFloat(this.optino.spotFrom),
+          max: parseFloat(this.optino.spotTo),
+          tickAmount: 20,
+          labels: {
+            formatter: function (value) {
+              return parseFloat(parseFloat(value).toPrecision(3));
+            },
+            rotate: -45,
+            rotateAlways: true,
+          },
+        },
+        yaxis: [
+          {
+            seriesName: 'PayoffInDeliveryToken',
+            min: 0,
+            title: {
+              text: this.yaxis1Title,
+              style: {
+                color: '#00cc66',
+              },
+            },
+            axisTicks: {
+              show: true,
+            },
+            axisBorder: {
+              show: true,
+              color: '#00cc66',
+            },
+            labels: {
+              formatter: function (value) {
+                return parseFloat(parseFloat(value).toPrecision(3));
+                // return value == null ? null : value.toFixed(2);
+              },
+              style: {
+                colors: '#00cc66',
+              }
+            },
+            tooltip: {
+              enabled: true,
+            },
+          },
+          {
+            seriesName: 'PayoffInDeliveryToken',
+            min: 0,
+            show: false,
+            labels: {
+              formatter: function (value) {
+                return value == null ? null : value.toFixed(2);
+              },
+              style: {
+                colors: '#008FFB',
+              }
+            },
+          },
+          {
+            seriesName: 'PayoffInDeliveryToken',
+            min: 0,
+            show: false,
+            labels: {
+              formatter: function (value) {
+                return value == null ? null : value.toFixed(2);
+              },
+              style: {
+                colors: '#008FFB',
+              }
+            },
+          },
+          {
+            seriesName: 'PayoffInNonDeliveryToken',
+            min: 0,
+            opposite: true,
+            title: {
+              text: this.yaxis2Title,
+              style: {
+                color: '#ff00ff',
+              },
+            },
+            axisTicks: {
+              show: true,
+            },
+            axisBorder: {
+              show: true,
+              color: '#ff00ff'
+            },
+            labels: {
+              formatter: function (value) {
+                return value == null ? null : value.toFixed(2);
+              },
+              style: {
+                colors: '#ff00ff',
+              }
+            },
+          }
+        ],
+      };
+    },
+    chartSeriesx() {
+      return [{
+        name: 'PayoffInDeliveryToken',
+        type: 'line',
+        data: this.optino.payoffSeries,
+      }, {
+        name: 'CoverPayoffInDeliveryToken',
+        type: 'line',
+        data: this.optino.coverPayoffSeries,
+      }, {
+        name: 'CollateralInDeliveryToken',
+        type: 'line',
+        data: this.optino.collateralSeries,
+      }, {
+        name: 'PayoffInNonDeliveryToken',
+        type: 'line',
+        data: this.optino.payoffsInNonDeliveryTokenSeries,
+      }];
+    },
   },
   mounted() {
     // logDebug("OptinoExplorer", "mounted() Called");
@@ -1534,12 +1652,8 @@ const OptinoExplorer = {
         logInfo("optinoExplorer", "recalculate - optino before: " + JSON.stringify(this.optino));
         if (event.callPut == 0) {
           this.optino.optionType = event.bound == 0 ? 'vc' : 'cc';
-          // this.optino.cap = event.bound;
-          // this.optino.floor = "0";
         } else {
           this.optino.optionType = event.bound == 0 ? 'vp' : 'fp';
-          // this.optino.cap = "0";
-          // this.optino.floor = event.bound;
         }
         this.optino.feed0 = event.feeds[0];
         this.optino.feed1 = event.feeds[1];
@@ -1570,6 +1684,7 @@ const OptinoExplorer = {
         this.optino.feedDecimals0 = parseInt(calculateSpot[0]);
         feedType0 = parseInt(calculateSpot[1]);
         this.optino.calculatedSpot = calculateSpot[2].shift(-this.optino.feedDecimals0).toString();
+        logInfo("optinoExplorer", "recalculate - calculateSpot: " + this.optino.calculatedSpot);
       } catch (e) {
         this.optino.calculatedSpot = null;
       }
@@ -1598,48 +1713,136 @@ const OptinoExplorer = {
           }
         }
 
-        var spots = [new BigNumber("9769.26390498279639").shift(feedDecimals0), new BigNumber(50).shift(feedDecimals0), new BigNumber(100).shift(feedDecimals0), new BigNumber(150).shift(feedDecimals0), new BigNumber(200).shift(feedDecimals0), new BigNumber(250).shift(feedDecimals0), new BigNumber(300).shift(feedDecimals0), new BigNumber(350).shift(feedDecimals0), new BigNumber(400).shift(feedDecimals0), new BigNumber(450).shift(feedDecimals0), new BigNumber(500).shift(feedDecimals0), new BigNumber(1000).shift(feedDecimals0), new BigNumber(10000).shift(feedDecimals0), new BigNumber(100000).shift(feedDecimals0)];
-        logInfo("optinoExplorer", "spots: " + JSON.stringify(spots));
-
-        var OPTINODECIMALS = 18;
-        // logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
-        // logInfo("optinoExplorer", "recalculates inputs([" + this.token0 + ", " + this.token1 + "], [" + this.feed0 + ", " + this.feed1 + "], " +
-        //   "[" + this.type0 + ", " + this.type1 + ", " + this.decimals0 + ", " + this.decimals1 + ", " + this.inverse0 + ", " + this.inverse1 + "], " +
-        //   "[callPut:" + this.callPut + ", expiry:" + this.expiry + ", strike:" + new BigNumber(this.strike).shift(feedDecimals0) + ", bound:" + new BigNumber(this.bound).shift(feedDecimals0) + ", tokens:" + new BigNumber(this.tokens).shift(OPTINODECIMALS) + "], [" + JSON.stringify(spots) + "])");
-
-        var bound = "0";
-        if (this.optino.optionType == 'cc') {
-          bound = this.optino.cap;
-        } else if (this.optino.optionType == 'fp') {
-          bound = this.optino.floor;
-        }
         var callPut = this.optino.optionType == 'vc' || this.optino.optionType == 'cc' ? 0 : 1;
 
-        var _calcPayoff = promisify(cb => factory.calcPayoffs([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
-          [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
-          [callPut, parseInt(/*this.optino.expiryInMillis*/ new Date() / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
+        if (parseFloat(this.optino.strike) > 0) {
+          // logInfo("optinoExplorer", "this.optino.calculatedSpot: " + this.optino.calculatedSpot);
+          logInfo("optinoExplorer", "this.optino.strike: " + this.optino.strike);
+          // logInfo("optinoExplorer", "this.optino.floor: " + this.optino.floor);
+          // logInfo("optinoExplorer", "this.optino.cap: " + this.optino.cap);
+          var maxRate = parseFloat(this.optino.calculateSpot) >= parseFloat(this.optino.strike) ? this.optino.calculateSpot : this.optino.strike;
+          if (callPut == 0) {
+            if (this.optino.optionType == 'cc') {
+              maxRate = parseFloat(this.optino.cap) >= parseFloat(maxRate) ? this.optino.cap : maxRate;
+            }
+          } else {
+            if (this.optino.optionType == 'fp') {
+              maxRate = parseFloat(this.optino.floor) >= parseFloat(maxRate) ? this.optino.floor : maxRate;
+            }
+          }
+          // logInfo("optinoExplorer", "maxRate: " + maxRate);
+          var xMax = parseFloat(maxRate * (callPut == 0 ? 7 : 2)).toPrecision(2);
+          logInfo("optinoExplorer", "xMax: " + xMax);
+          var steps = 100; // 100
+          var xStep = parseFloat(parseFloat(xMax / steps).toPrecision(1));
+          logInfo("optinoExplorer", "xStep: " + xStep);
+          xMax = parseFloat(xStep * steps).toPrecision(8);
+          logInfo("optinoExplorer", "xMax: " + xMax);
+          this.optino.spotFrom = 0;
+          this.optino.spotTo = xMax;
+          var spots = [];
+          logInfo("optinoExplorer", "debug1");
+          for (var x = new BigNumber("0"); x.lte(new BigNumber(xMax).shift(feedDecimals0)); x = x.add(new BigNumber(xStep).shift(feedDecimals0))) {
+            logInfo("optinoExplorer", "recalculate - spots.push: " + x);
+            spots.push(x.toString());
+            // spots.push(new BigNumber(x).shift(feedDecimals0).toString());
+          }
+          logInfo("optinoExplorer", "recalculate - spots:" + JSON.stringify(spots));
 
-        var calcPayoff = await _calcPayoff;
-        logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
-        this.optino.collateralToken = calcPayoff[0];
-        this.optino.collateralDecimals = calcPayoff[1][2].toString();
-        this.optino.collateralTokens = new BigNumber(calcPayoff[1][0]).shift(-this.optino.collateralDecimals).toString();
-        this.optino.collateralFee = new BigNumber(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
-        this.optino.collateralTokensPlusFee = new BigNumber(calcPayoff[1][0]).add(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
-        this.optino.feedDecimals0 = parseInt(calcPayoff[1][3]);
-        this.optino.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.optino.feedDecimals0).toString();
-        this.optino.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.optino.collateralDecimals).toString();
-        this.payoffs = calcPayoff[2];
-        logInfo("optinoExplorer", "recalculate - optino " + JSON.stringify(this.optino));
-        // logInfo("optinoExplorer", "collateralTokenNew " + this.collateralTokenNew);
-        // logInfo("optinoExplorer", "collateralTokens " + this.collateralTokens);
-        // logInfo("optinoExplorer", "collateralFee " + this.collateralFee);
-        // logInfo("optinoExplorer", "collateralDecimalsNew " + this.collateralDecimalsNew);
-        // logInfo("optinoExplorer", "feedDecimals0 " + this.feedDecimals0);
-        // logInfo("optinoExplorer", "_currentSpot " + this.currentSpot);
-        // logInfo("optinoExplorer", "_currentPayoff " + this.currentPayoff);
-        // logInfo("optinoExplorer", "spots " + JSON.stringify(shiftBigNumberArray(spots, -feedDecimals0)));
-        // logInfo("optinoExplorer", "calcPayoffs: " + JSON.stringify(shiftBigNumberArray(this.payoffs, -this.collateralDecimalsNew)));
+          var bound = "0";
+          if (this.optino.optionType == 'cc') {
+            bound = this.optino.cap;
+          } else if (this.optino.optionType == 'fp') {
+            bound = this.optino.floor;
+          }
+
+          var OPTINODECIMALS = 18;
+          var _calcPayoff = promisify(cb => factory.calcPayoffs([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
+            [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
+            [callPut, parseInt(/*this.optino.expiryInMillis*/ new Date() / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
+
+          var calcPayoff = await _calcPayoff;
+          logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
+          this.optino.collateralToken = calcPayoff[0];
+          var collateralDecimals = parseInt(calcPayoff[1][2]);
+          this.optino.collateralDecimals = calcPayoff[1][2].toString();
+          var collateralTokens = calcPayoff[1][0];
+          this.optino.collateralTokens = new BigNumber(calcPayoff[1][0]).shift(-this.optino.collateralDecimals).toString();
+          this.optino.collateralFee = new BigNumber(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
+          this.optino.collateralTokensPlusFee = new BigNumber(calcPayoff[1][0]).add(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
+          this.optino.feedDecimals0 = parseInt(calcPayoff[1][3]);
+          this.optino.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.optino.feedDecimals0).toString();
+          this.optino.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.optino.collateralDecimals).toString();
+          logInfo("optinoExplorer", "recalculate - optino " + JSON.stringify(this.optino));
+
+          var payoffSeries = [];
+          var coverPayoffSeries = [];
+          var collateralSeries = [];
+          var payoffsInNonDeliveryTokenSeries = [];
+
+          var payoffs = calcPayoff[2];
+          // logInfo("optinoExplorer", "recalculate - debug1");
+          for (var i = 0; i < spots.length; i++) {
+            // logInfo("optinoExplorer", "recalculate - debug2");
+            var spot = new BigNumber(spots[i]).shift(-feedDecimals0);
+            // logInfo("optinoExplorer", "recalculate - debug3");
+            var payoff = payoffs[i].shift(-collateralDecimals);
+            // logInfo("optinoExplorer", "recalculate - debug4");
+            var coverPayoff = collateralTokens.minus(payoffs[i]).shift(-collateralDecimals);
+            // logInfo("optinoExplorer", "recalculate - debug5");
+            var payoffInNonDeliveryToken;
+            if (callPut == 0) {
+              // logInfo("optinoExplorer", "recalculate - debug6c");
+              payoffInNonDeliveryToken = new BigNumber(payoff).mul(spot);
+            } else {
+              // logInfo("optinoExplorer", "recalculate - debug6p");
+              payoffInNonDeliveryToken = spot == 0 ? null : parseFloat(payoff) / parseFloat(spot);
+            }
+            payoffSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(payoff.toString()) });
+            coverPayoffSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(coverPayoff.toString()) });
+            collateralSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(collateralTokens.shift(-collateralDecimals).toString()) });
+            if (callPut == 0 || spot != 0) {
+              payoffsInNonDeliveryTokenSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(payoffInNonDeliveryToken.toString()) });
+            } else {
+              payoffsInNonDeliveryTokenSeries.push({ x: parseFloat(spot.toString()), y: null });
+            }
+            // logInfo("optinoExplorer", "recalculate - spot: " + spot + ", payoff: " + payoff + ", coverPayoff: " + coverPayoff + "; collateralTokens: " + collateralTokens + "; payoffInNonDeliveryToken: " + payoffInNonDeliveryToken);
+          }
+
+          this.optino.chartSeries = [{
+            name: 'PayoffInDeliveryToken',
+            type: 'line',
+            data: payoffSeries,
+          }, {
+            name: 'CoverPayoffInDeliveryToken',
+            type: 'line',
+            data: coverPayoffSeries,
+          }, {
+            name: 'CollateralInDeliveryToken',
+            type: 'line',
+            data: collateralSeries,
+          }, {
+            name: 'PayoffInNonDeliveryToken',
+            type: 'line',
+            data: payoffsInNonDeliveryTokenSeries,
+          }];
+          // logInfo("optinoExplorer", "this.optino.chartSeries: " + JSON.stringify(this.optino.chartSeries));
+
+          // logInfo("optinoExplorer", "payoffSeries: " + JSON.stringify(payoffSeries));
+          // logInfo("optinoExplorer", "coverPayoffSeries: " + JSON.stringify(coverPayoffSeries));
+          // logInfo("optinoExplorer", "collateralSeries: " + JSON.stringify(collateralSeries));
+          // logInfo("optinoExplorer", "payoffsInNonDeliveryTokenSeries: " + JSON.stringify(payoffsInNonDeliveryTokenSeries));
+
+          // logInfo("optinoExplorer", "collateralTokenNew " + this.collateralTokenNew);
+          // logInfo("optinoExplorer", "collateralTokens " + this.collateralTokens);
+          // logInfo("optinoExplorer", "collateralFee " + this.collateralFee);
+          // logInfo("optinoExplorer", "collateralDecimalsNew " + this.collateralDecimalsNew);
+          // logInfo("optinoExplorer", "feedDecimals0 " + this.feedDecimals0);
+          // logInfo("optinoExplorer", "_currentSpot " + this.currentSpot);
+          // logInfo("optinoExplorer", "_currentPayoff " + this.currentPayoff);
+          // logInfo("optinoExplorer", "spots " + JSON.stringify(shiftBigNumberArray(spots, -feedDecimals0)));
+          // logInfo("optinoExplorer", "calcPayoffs: " + JSON.stringify(shiftBigNumberArray(this.payoffs, -this.collateralDecimalsNew)));
+        }
       } catch (e) {
       }
     },
