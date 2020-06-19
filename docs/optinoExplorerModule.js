@@ -42,6 +42,11 @@ const OptinoExplorer = {
                   <b-card no-body bg-variant="light" class="m-1 p-1">
                     <b-card-body class="m-1 p-1">
                       <b-form-group label-cols="4" label-size="sm" label="Type">
+                        <b-form-select size="sm" v-model="optino.optionType" :options="optinoTypes" @input="recalculate('optionType', $event)">
+                        </b-form-select>
+                      </b-form-group>
+                      <!--
+                      <b-form-group label-cols="4" label-size="sm" label="Type">
                         <b-form-radio-group size="sm" v-model="optino.callPut" @input="recalculate('callPut', $event)">
                           <b-form-radio value="0">Call</b-form-radio>
                           <b-form-radio value="1">Put</b-form-radio>
@@ -59,6 +64,7 @@ const OptinoExplorer = {
                           <b-form-radio value="1">Floored Put</b-form-radio>
                         </b-form-radio-group>
                       </b-form-group>
+                      -->
                       <b-form-group label-cols="4" label-size="sm" label="Spot">
                         <b-input-group>
                           <b-form-input size="sm" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Click to select"></b-form-input>
@@ -73,12 +79,12 @@ const OptinoExplorer = {
                           <b-form-input size="sm" type="text" v-model.trim="optino.strike" @input="recalculate('strike', $event)"></b-form-input>
                         </b-input-group>
                       </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="Cap" description="Cap (bound) for Capped Call. Set to 0 for Vanilla Call" v-if="optino.callPut == 0 && optino.vanillaOrBounded != 0">
+                      <b-form-group label-cols="4" label-size="sm" label="Cap" description="Cap (bound) for Capped Call. Set to 0 for Vanilla Call" v-if="optino.optionType == 'cc'">
                         <b-input-group>
                           <b-form-input size="sm" type="text" v-model.trim="optino.cap" @input="recalculate('cap', $event)"></b-form-input>
                         </b-input-group>
                       </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="Floor" description="Floor (bound) for Floored Put. Set to 0 for Vanilla Put" v-if="optino.callPut != 0 && optino.vanillaOrBounded != 0">
+                      <b-form-group label-cols="4" label-size="sm" label="Floor" description="Floor (bound) for Floored Put. Set to 0 for Vanilla Put" v-if="optino.optionType == 'fp'">
                         <b-input-group>
                           <b-form-input size="sm" type="text" v-model.trim="optino.floor" @input="recalculate('floor', $event)"></b-form-input>
                         </b-input-group>
@@ -139,7 +145,7 @@ const OptinoExplorer = {
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="Total collateral + fee">
                         <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                          <b-form-input size="sm" type="text" :value="optino.collateralTokens + optino.collateralFee" readonly></b-form-input>
+                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralTokensPlusFee" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="feedDecimals0">
@@ -801,8 +807,7 @@ const OptinoExplorer = {
         show: true,
         showFeed: false,
 
-        callPut: 0,
-        vanillaOrBounded: 0,
+        optionType: 'vc',
 
         feed0: "0x8468b2bdce073a157e560aa4d9ccf6db1db98507",
         feed1: "0x0000000000000000000000000000000000000000",
@@ -831,6 +836,7 @@ const OptinoExplorer = {
         collateralTokens: null,
         collateralDecimals: null,
         collateralFee: null,
+        collateralTokensPlusFee: null,
 
         currentSpot: null,
         currentPayoff: null,
@@ -913,6 +919,22 @@ const OptinoExplorer = {
       fee: "0",
       description: "",
       // callPut: 0,
+      optinoTypes: [
+        {
+          label: 'Calls',
+          options: [
+            { value: 'vc', text: 'Vanilla Call' },
+            { value: 'cc', text: 'Capped Call' },
+          ]
+        },
+        {
+          label: 'Puts',
+          options: [
+            { value: 'vp', text: 'Vanilla Put' },
+            { value: 'fp', text: 'Floored Put' },
+          ]
+        },
+      ],
       callPutOptions: [
         { value: 0, text: 'Call' },
         { value: 1, text: 'Put' },
@@ -1510,8 +1532,15 @@ const OptinoExplorer = {
 
       if (source == "setSeries") {
         logInfo("optinoExplorer", "recalculate - optino before: " + JSON.stringify(this.optino));
-        this.optino.callPut = parseInt(event.callPut);
-        // this.optino.vanillaOrBounded = event.feed1;
+        if (event.callPut == 0) {
+          this.optino.optionType = event.bound == 0 ? 'vc' : 'cc';
+          // this.optino.cap = event.bound;
+          // this.optino.floor = "0";
+        } else {
+          this.optino.optionType = event.bound == 0 ? 'vp' : 'fp';
+          // this.optino.cap = "0";
+          // this.optino.floor = event.bound;
+        }
         this.optino.feed0 = event.feeds[0];
         this.optino.feed1 = event.feeds[1];
 
@@ -1560,8 +1589,13 @@ const OptinoExplorer = {
         logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
         if (source == "setSeries") {
           this.optino.strike = new BigNumber(event.strike).shift(-feedDecimals0).toString();
-          // this.optino.cap = event.cap;
-          // this.optino.floor = event.floor;
+          if (event.callPut == 0) {
+            this.optino.cap = new BigNumber(event.bound).shift(-feedDecimals0).toString();
+            this.optino.floor = "0";
+          } else {
+            this.optino.cap = "0";
+            this.optino.floor = new BigNumber(event.bound).shift(-feedDecimals0).toString();
+          }
         }
 
         var spots = [new BigNumber("9769.26390498279639").shift(feedDecimals0), new BigNumber(50).shift(feedDecimals0), new BigNumber(100).shift(feedDecimals0), new BigNumber(150).shift(feedDecimals0), new BigNumber(200).shift(feedDecimals0), new BigNumber(250).shift(feedDecimals0), new BigNumber(300).shift(feedDecimals0), new BigNumber(350).shift(feedDecimals0), new BigNumber(400).shift(feedDecimals0), new BigNumber(450).shift(feedDecimals0), new BigNumber(500).shift(feedDecimals0), new BigNumber(1000).shift(feedDecimals0), new BigNumber(10000).shift(feedDecimals0), new BigNumber(100000).shift(feedDecimals0)];
@@ -1572,18 +1606,18 @@ const OptinoExplorer = {
         // logInfo("optinoExplorer", "recalculates inputs([" + this.token0 + ", " + this.token1 + "], [" + this.feed0 + ", " + this.feed1 + "], " +
         //   "[" + this.type0 + ", " + this.type1 + ", " + this.decimals0 + ", " + this.decimals1 + ", " + this.inverse0 + ", " + this.inverse1 + "], " +
         //   "[callPut:" + this.callPut + ", expiry:" + this.expiry + ", strike:" + new BigNumber(this.strike).shift(feedDecimals0) + ", bound:" + new BigNumber(this.bound).shift(feedDecimals0) + ", tokens:" + new BigNumber(this.tokens).shift(OPTINODECIMALS) + "], [" + JSON.stringify(spots) + "])");
+
         var bound = "0";
-        if (this.optino.vanillaOrBounded == 1) {
-          if (this.optino.callPut == 0) {
-            bound = this.optino.cap;
-          } else {
-            bound = this.optino.floor;
-          }
+        if (this.optino.optionType == 'cc') {
+          bound = this.optino.cap;
+        } else if (this.optino.optionType == 'fp') {
+          bound = this.optino.floor;
         }
+        var callPut = this.optino.optionType == 'vc' || this.optino.optionType == 'cc' ? 0 : 1;
 
         var _calcPayoff = promisify(cb => factory.calcPayoffs([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
           [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
-          [this.optino.callPut, parseInt(/*this.optino.expiryInMillis*/ new Date() / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
+          [callPut, parseInt(/*this.optino.expiryInMillis*/ new Date() / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
 
         var calcPayoff = await _calcPayoff;
         logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
@@ -1591,6 +1625,7 @@ const OptinoExplorer = {
         this.optino.collateralDecimals = calcPayoff[1][2].toString();
         this.optino.collateralTokens = new BigNumber(calcPayoff[1][0]).shift(-this.optino.collateralDecimals).toString();
         this.optino.collateralFee = new BigNumber(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
+        this.optino.collateralTokensPlusFee = new BigNumber(calcPayoff[1][0]).add(calcPayoff[1][1]).shift(-this.optino.collateralDecimals).toString();
         this.optino.feedDecimals0 = parseInt(calcPayoff[1][3]);
         this.optino.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.optino.feedDecimals0).toString();
         this.optino.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.optino.collateralDecimals).toString();
