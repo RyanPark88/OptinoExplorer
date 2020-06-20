@@ -37,7 +37,7 @@ const OptinoExplorer = {
 
                 <b-modal v-model="optino.show" id="bv-modal-optino" size="lg" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-1 p-1">
                   <template v-slot:modal-title>
-                    Optinos [{{ networkName }}]
+                    <h6>{{ seriesName(optino, '') }}</h6>
                   </template>
                   <b-card no-body bg-variant="light" class="m-1 p-1">
                     <b-card-body class="m-1 p-1">
@@ -180,6 +180,9 @@ const OptinoExplorer = {
                         <b-tab title="Payoff Table">
                           <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
                           </b-table>
+                        </b-tab>
+                        <b-tab title="Mint">
+                          Mint
                         </b-tab>
                         <b-tab title="Series Info" v-if="optino.series">
                           Series Info
@@ -872,9 +875,9 @@ const OptinoExplorer = {
     coinbase() {
       return store.getters['connection/coinbase'];
     },
-    networkName() {
-      return store.getters['connection/networkName'];
-    },
+    // networkName() {
+    //   return store.getters['connection/networkName'];
+    // },
     maxTermInDays() {
       return this.maxTerm == null ? null : parseInt(this.maxTerm)/60/60/24;
     },
@@ -1395,6 +1398,61 @@ const OptinoExplorer = {
         return tokenData[addr].name;
       }
       return address;
+    },
+    seriesName(_optino, type) {
+      if (_optino != null) {
+        var name = "";
+        if (_optino.optionType == 'vc') {
+          name = "Vanilla Call";
+        } else if (_optino.optionType == 'cc') {
+          name = "Capped Call";
+        } else if (_optino.optionType == 'vp') {
+          name = "Vanilla Put";
+        } else if (_optino.optionType == 'fp') {
+          name = "Floored Put";
+        }
+        name += " ";
+
+        if (_optino.token0 != null) {
+          var tokenData = store.getters['optinoFactory/tokenData'];
+          var token0 = tokenData[_optino.token0.toLowerCase()];
+          if (typeof token0 !== "undefined") {
+            name += token0.symbol;
+          } else {
+            name += _optino.token0.substr(0, 10);
+          }
+        } else {
+          name += "(null)";
+        }
+        name += "/";
+        if (_optino.token1 != null) {
+          var tokenData = store.getters['optinoFactory/tokenData'];
+          var token1 = tokenData[_optino.token1.toLowerCase()];
+          if (typeof token1 !== "undefined") {
+            name += token1.symbol;
+          } else {
+            name += _optino.token1.substr(0, 10);
+          }
+        } else {
+          name += "(null)";
+        }
+        name += " ";
+        name += moment(_optino.expiryInMillis).utc().format();
+        name += " ";
+        if (_optino.optionType == 'fp') {
+          name += parseFloat(new BigNumber(_optino.floor).toFixed(_optino.feedDecimals0)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9});
+          name += "-";
+        }
+        name += parseFloat(new BigNumber(_optino.strike).toFixed(_optino.feedDecimals0)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9});
+        if (_optino.optionType == 'cc') {
+          name += "-";
+          name += parseFloat(new BigNumber(_optino.cap).toFixed(_optino.feedDecimals0)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9});
+        }
+        name += " ";
+        name += this.feedName(_optino);
+        return name;
+      }
+      return null;
     },
     displayFeed(address) {
       if (address == ADDRESS0) {
