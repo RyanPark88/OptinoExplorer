@@ -161,7 +161,7 @@ const OptinoExplorer = {
                         </b-input-group>
                       </b-form-group>
                       <b-form-group label-cols="4" label-size="sm" label="currentPayoff">
-                        <b-input-group>
+                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
                           <b-form-input size="sm" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
                         </b-input-group>
                       </b-form-group>
@@ -838,6 +838,7 @@ const OptinoExplorer = {
         tokens: "10",
 
         collateralToken: null,
+        nonCollateralToken: null,
         collateralTokens: null,
         collateralDecimals: null,
         collateralFee: null,
@@ -847,11 +848,6 @@ const OptinoExplorer = {
         currentPayoff: null,
 
         chartSeries: [],
-        // payoffSeries: [],
-        // coverPayoffSeries: [],
-        // collateralSeries: [],
-        // payoffsInNonDeliveryTokenSeries: [],
-
         spotFrom: "0",
         spotTo: "200",
 
@@ -1281,6 +1277,9 @@ const OptinoExplorer = {
           min: parseFloat(this.optino.spotFrom),
           max: parseFloat(this.optino.spotTo),
           tickAmount: 20,
+          title: {
+            text: 'Spot',
+          },
           labels: {
             formatter: function (value) {
               return parseFloat(parseFloat(value).toPrecision(3));
@@ -1291,10 +1290,10 @@ const OptinoExplorer = {
         },
         yaxis: [
           {
-            seriesName: 'PayoffInDeliveryToken',
+            seriesName: 'Optino Payoff',
             min: 0,
             title: {
-              text: this.yaxis1Title,
+              text: 'Payoff in ' + this.tokenSymbol(this.optino.collateralToken),
               style: {
                 color: '#00cc66',
               },
@@ -1319,7 +1318,7 @@ const OptinoExplorer = {
             },
           },
           {
-            seriesName: 'PayoffInDeliveryToken',
+            seriesName: 'Optino Payoff',
             min: 0,
             show: false,
             labels: {
@@ -1332,7 +1331,7 @@ const OptinoExplorer = {
             },
           },
           {
-            seriesName: 'PayoffInDeliveryToken',
+            seriesName: 'Optino Payoff',
             min: 0,
             show: false,
             labels: {
@@ -1345,11 +1344,11 @@ const OptinoExplorer = {
             },
           },
           {
-            seriesName: 'PayoffInNonDeliveryToken',
+            seriesName: 'Equivalent Optino Payoff in ' + this.tokenSymbol(this.optino.nonCollateralToken),
             min: 0,
             opposite: true,
             title: {
-              text: this.yaxis2Title,
+              text: 'Equivalent Payoff in ' + this.tokenSymbol(this.optino.nonCollateralToken),
               style: {
                 color: '#ff00ff',
               },
@@ -1371,26 +1370,14 @@ const OptinoExplorer = {
             },
           }
         ],
+        tooltip: {
+          x: {
+            formatter: function(value, { series, seriesIndex, dataPointIndex, w }) {
+              return "Spot " + value;
+            }
+          }
+        },
       };
-    },
-    chartSeriesx() {
-      return [{
-        name: 'PayoffInDeliveryToken',
-        type: 'line',
-        data: this.optino.payoffSeries,
-      }, {
-        name: 'CoverPayoffInDeliveryToken',
-        type: 'line',
-        data: this.optino.coverPayoffSeries,
-      }, {
-        name: 'CollateralInDeliveryToken',
-        type: 'line',
-        data: this.optino.collateralSeries,
-      }, {
-        name: 'PayoffInNonDeliveryToken',
-        type: 'line',
-        data: this.optino.payoffsInNonDeliveryTokenSeries,
-      }];
     },
   },
   mounted() {
@@ -1668,7 +1655,7 @@ const OptinoExplorer = {
 
         this.optino.token0 = event.pair[0];
         this.optino.token1 = event.pair[1];
-        logInfo("optinoExplorer", "recalculate - optino  after: " + JSON.stringify(this.optino));
+        // logInfo("optinoExplorer", "recalculate - optino  after: " + JSON.stringify(this.optino));
       }
 
       var factoryAddress = store.getters['optinoFactory/address']
@@ -1742,11 +1729,11 @@ const OptinoExplorer = {
           var spots = [];
           logInfo("optinoExplorer", "debug1");
           for (var x = new BigNumber("0"); x.lte(new BigNumber(xMax).shift(feedDecimals0)); x = x.add(new BigNumber(xStep).shift(feedDecimals0))) {
-            logInfo("optinoExplorer", "recalculate - spots.push: " + x);
+            // logInfo("optinoExplorer", "recalculate - spots.push: " + x);
             spots.push(x.toString());
             // spots.push(new BigNumber(x).shift(feedDecimals0).toString());
           }
-          logInfo("optinoExplorer", "recalculate - spots:" + JSON.stringify(spots));
+          // logInfo("optinoExplorer", "recalculate - spots:" + JSON.stringify(spots));
 
           var bound = "0";
           if (this.optino.optionType == 'cc') {
@@ -1761,8 +1748,9 @@ const OptinoExplorer = {
             [callPut, parseInt(/*this.optino.expiryInMillis*/ new Date() / 1000), new BigNumber(this.optino.strike).shift(feedDecimals0), new BigNumber(bound).shift(feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], spots, cb));
 
           var calcPayoff = await _calcPayoff;
-          logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
+          // logInfo("optinoExplorer", "recalculate - calcPayoff: " + JSON.stringify(calcPayoff));
           this.optino.collateralToken = calcPayoff[0];
+          this.optino.nonCollateralToken = callPut == 0 ? this.optino.token1 : this.optino.token0;
           var collateralDecimals = parseInt(calcPayoff[1][2]);
           this.optino.collateralDecimals = calcPayoff[1][2].toString();
           var collateralTokens = calcPayoff[1][0];
@@ -1772,7 +1760,7 @@ const OptinoExplorer = {
           this.optino.feedDecimals0 = parseInt(calcPayoff[1][3]);
           this.optino.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.optino.feedDecimals0).toString();
           this.optino.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.optino.collateralDecimals).toString();
-          logInfo("optinoExplorer", "recalculate - optino " + JSON.stringify(this.optino));
+          // logInfo("optinoExplorer", "recalculate - optino " + JSON.stringify(this.optino));
 
           var payoffSeries = [];
           var coverPayoffSeries = [];
@@ -1809,19 +1797,19 @@ const OptinoExplorer = {
           }
 
           this.optino.chartSeries = [{
-            name: 'PayoffInDeliveryToken',
+            name: 'Optino Payoff',
             type: 'line',
             data: payoffSeries,
           }, {
-            name: 'CoverPayoffInDeliveryToken',
+            name: 'Cover Payoff',
             type: 'line',
             data: coverPayoffSeries,
           }, {
-            name: 'CollateralInDeliveryToken',
+            name: 'Collateral',
             type: 'line',
             data: collateralSeries,
           }, {
-            name: 'PayoffInNonDeliveryToken',
+            name: 'Equivalent Optino Payoff in ' + this.tokenSymbol(this.optino.nonCollateralToken),
             type: 'line',
             data: payoffsInNonDeliveryTokenSeries,
           }];
