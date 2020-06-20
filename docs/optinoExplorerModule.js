@@ -21,7 +21,7 @@ const OptinoExplorer = {
                     <b-form-select size="sm" :options="seriesPageOptions" v-model="seriesPerPage" v-b-popover.hover="'Select page size'"/>
                   </div>
                   <div class="pr-1">
-                    <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('show', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
+                    <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('new', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
                   </div>
                   <!--
                   <div class="pr-1">
@@ -173,7 +173,18 @@ const OptinoExplorer = {
                       </b-form-group>
                       -->
 
-                      <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
+                      <b-tabs small card v-model="optinoFeedMode" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
+                        <b-tab title="Payoff Chart">
+                          <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
+                        </b-tab>
+                        <b-tab title="Payoff Table">
+                          <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
+                          </b-table>
+                        </b-tab>
+                        <b-tab title="Series Info" v-if="optino.series">
+                          Series Info
+                        </b-tab>
+                      </b-tabs>
 
                     </b-card-body>
                   </b-card>
@@ -199,7 +210,7 @@ const OptinoExplorer = {
                                <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
                               </div>
                             </div>
-                            <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="singleFeedSelectionRowClicked">
+                            <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="singleFeedSelectionRowClicked">
                               <template v-slot:cell(name)="data">
                                 <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>
                               </template>
@@ -236,7 +247,7 @@ const OptinoExplorer = {
                                <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
                               </div>
                             </div>
-                            <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
+                            <b-table style="font-size: 85%;" small striped striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="selectFeedFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
                               <template v-slot:cell(name)="data">
                                 <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>
                               </template>
@@ -338,7 +349,7 @@ const OptinoExplorer = {
 
 
 
-                <b-table style="font-size: 85%;" small striped selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['base', 'quote', 'feed0', 'feed1', 'type', 'strike', 'bound', 'optino', 'cover']" show-empty>
+                <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['base', 'quote', 'feed0', 'feed1', 'type', 'strike', 'bound', 'optino', 'cover']" show-empty>
                   <template v-slot:cell(base)="data">
                     <b-link :href="explorer + 'token/' + data.item.pair[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[0]) + ' on the block explorer'">{{ tokenSymbol(data.item.pair[0]) }}</b-link>
                   </template>
@@ -390,9 +401,11 @@ const OptinoExplorer = {
             </b-card>
 
             <b-card no-body class="mb-1">
+              <!--
               <b-card-header header-tag="header" class="p-1">
                 <b-button href="#" v-b-toggle.factoryseries variant="outline-info">Series</b-button>
               </b-card-header>
+              -->
               <b-collapse id="factoryseries" class="border-0">
                 <b-card-body>
                   <b-form>
@@ -455,12 +468,12 @@ const OptinoExplorer = {
                 </b-card-body>
               </b-collapse>
 
-
-              <!-- mintOptinoTokens(baseToken, quoteToken, priceFeed, callPut, expiry, strike, baseTokens, uiFeeAccount -->
+              <!--
               <b-card-header header-tag="header" class="p-1">
                 <b-button href="#" v-b-toggle.mintOptino variant="outline-info">Mint Optino</b-button>
               </b-card-header>
-              <b-collapse id="mintOptino" visible class="border-0">
+              -->
+              <b-collapse id="mintOptino" class="border-0">
                 <b-card-body>
                   <b-form>
                     <b-form-group label-cols="3" label="feed0">
@@ -614,140 +627,6 @@ const OptinoExplorer = {
                       </b-input-group>
                     </b-form-group>
 
-                  <!--
-
-                  feedDecimals0: null,
-                  currentSpot: null,
-                  currentPayoff: null,
-                  payoffs: null,
-
-                  -->
-
-                  <!--
-                    <b-form-group label="Config: " label-cols="3" :description="configKey == '' ? 'Select a Config (or Series below)' : 'Config key ' + configKey">
-                      <b-form-select v-model="configKey" :options="configOptions" v-on:change="configSelected"></b-form-select>
-                    </b-form-group>
-                    <b-form-group label="Expired: " label-cols="3">
-                      <b-form-checkbox v-model="expired">Display</b-form-checkbox>
-                    </b-form-group>
-                    <b-form-group label="Series: " label-cols="3">
-                      <b-input-group>
-                        <b-form-select v-model="selectedSeries" :options="seriesOptions" v-on:change="seriesSelected"></b-form-select>
-                        <b-input-group-append>
-                          <b-button @click="$bvModal.show('bv-modal-example')">Select</b-button>
-                        </b-input-group-append>
-                      </b-input-group>
-                    </b-form-group>
-                    -->
-
-                    <!--
-                    <b-modal id="bv-modal-example" hide-footer>
-                      <template v-slot:modal-title>
-                        Select <code>baseToken</code>
-                      </template>
-                      <div class="d-block text-center">
-                        <b-form-group label="Series: " label-cols="3">
-                          <b-form-select v-model="selectedSeries" :options="tokenOptions" v-on:change="seriesSelected" size="sm" class="mt-3">></b-form-select>
-                        </b-form-group>
-                        <h3>Hello From This Modal!</h3>
-                      </div>
-                      <b-button class="mt-3" block @click="$bvModal.hide('bv-modal-example')">Close Me</b-button>
-                    </b-modal>
-                    -->
-
-                    <!--
-                    <b-form-group label-cols="3" label="baseToken">
-                      <b-input-group>
-                        <b-form-select v-model="baseToken" :options="tokenOptions"></b-form-select>
-                        <b-input-group-append>
-                          <b-button v-bind:disabled="(baseToken !== '' && baseToken != ADDRESS0) ? false : 'disabled'" :href="explorer + 'token/' + baseToken" target="_blank" variant="outline-info">🔗</b-button>
-                        </b-input-group-append>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="quoteToken">
-                      <b-input-group>
-                        <b-form-select v-model="quoteToken" :options="tokenOptions"></b-form-select>
-                        <b-input-group-append>
-                          <b-button v-bind:disabled="(quoteToken !== '' && quoteToken != ADDRESS0) ? false : 'disabled'" :href="explorer + 'token/' + quoteToken" target="_blank" variant="outline-info">🔗</b-button>
-                        </b-input-group-append>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="priceFeed">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="priceFeed" readonly></b-form-input>
-                        <b-input-group-append>
-                          <b-button v-bind:disabled="priceFeed !== '' ? false : 'disabled'" :href="explorer + 'address/' + priceFeed + '#readContract'" target="_blank" variant="outline-info">🔗</b-button>
-                        </b-input-group-append>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="baseDecimals">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="baseDecimals" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="quoteDecimals">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="quoteDecimals" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="rateDecimals">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="rateDecimals" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    -->
-
-                    <!--
-                    <b-form-group label-cols="3" label="maxTerm">
-                      <b-input-group append="seconds">
-                        <b-form-input type="text" v-model.trim="maxTerm" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    -->
-
-                    <!--
-                    <b-form-group label-cols="3" label="fee">
-                      <b-input-group append="%">
-                        <b-form-input type="text" v-model.trim="fee" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="description">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="description" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    -->
-                    <!--
-                    <b-form-group label-cols="3" label="callPut">
-                      <b-form-radio-group id="radio-group-callput" v-model="callPut">
-                        <b-form-radio value="0">Call</b-form-radio>
-                        <b-form-radio value="1">Put</b-form-radio>
-                      </b-form-radio-group>
-                    </b-form-group>
-                    -->
-                    <!--
-                    <b-form-group label-cols="3" label="baseTokens">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="baseTokens"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="collateral">
-                      <b-input-group>
-                        <b-input-group :append="collateralSymbol">
-                          <b-form-input type="text" v-model.trim="collateral" readonly></b-form-input>
-                        </b-input-group>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="collateralPlusFee">
-                      <b-input-group>
-                        <b-input-group :append="collateralSymbol">
-                          <b-form-input type="text" v-model.trim="collateralPlusFee" readonly></b-form-input>
-                        </b-input-group>
-                      </b-input-group>
-                    </b-form-group>
-                    -->
 
                     <!--
                     <b-card :title="collateralSymbol" v-if="collateralToken != null && collateralToken != ADDRESS0">
@@ -812,6 +691,8 @@ const OptinoExplorer = {
         show: false,
         showFeed: false,
 
+        series: null,
+
         optionType: 'vc',
 
         feed0: "0x8468b2bdce073a157e560aa4d9ccf6db1db98507",
@@ -851,6 +732,7 @@ const OptinoExplorer = {
         spotFrom: "0",
         spotTo: "200",
 
+        payoffTable: [],
       },
 
       token0: "0x452a2652d1245132f7f47700c24e217faceb1c6c",
@@ -973,6 +855,13 @@ const OptinoExplorer = {
         { key: 'timestamp', label: 'Timestamp', formatter: d => { return new Date(d*1000).toLocaleString(); }, sortable: true },
         { key: 'address', label: 'Address', sortable: true },
         { key: 'selected', label: 'Select', sortable: false },
+      ],
+      payoffTableFields: [
+        { key: 'spot', label: 'Spot', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'payoff', label: 'Optino Payoff', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'coverPayoff', label: 'Cover Payoff', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'collateral', label: 'Collateral', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'payoffInNonCollateral', label: 'Payoff In Non-Collateral', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
       ],
     }
   },
@@ -1634,8 +1523,12 @@ const OptinoExplorer = {
     async recalculate(source, event) {
       logInfo("optinoExplorer", "recalculate(" + source + ", " + JSON.stringify(event) + ")");
 
+      if (source == "new") {
+        this.optino.series = null;
+      }
       if (source == "setSeries") {
-        logInfo("optinoExplorer", "recalculate - optino before: " + JSON.stringify(this.optino));
+        this.optino.series = event;
+        // logInfo("optinoExplorer", "recalculate - optino before: " + JSON.stringify(this.optino));
         if (event.callPut == 0) {
           this.optino.optionType = event.bound == 0 ? 'vc' : 'cc';
         } else {
@@ -1766,6 +1659,7 @@ const OptinoExplorer = {
           var coverPayoffSeries = [];
           var collateralSeries = [];
           var payoffsInNonDeliveryTokenSeries = [];
+          var payoffTable = [];
 
           var payoffs = calcPayoff[2];
           // logInfo("optinoExplorer", "recalculate - debug1");
@@ -1788,13 +1682,16 @@ const OptinoExplorer = {
             payoffSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(payoff.toString()) });
             coverPayoffSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(coverPayoff.toString()) });
             collateralSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(collateralTokens.shift(-collateralDecimals).toString()) });
-            if (callPut == 0 || spot != 0) {
-              payoffsInNonDeliveryTokenSeries.push({ x: parseFloat(spot.toString()), y: parseFloat(payoffInNonDeliveryToken.toString()) });
-            } else {
-              payoffsInNonDeliveryTokenSeries.push({ x: parseFloat(spot.toString()), y: null });
-            }
+            payoffsInNonDeliveryTokenSeries.push({ x: parseFloat(spot.toString()), y: payoffInNonDeliveryToken == null ? null : parseFloat(payoffInNonDeliveryToken.toString()) });
+            payoffTable.push({
+              spot: parseFloat(spot.toString()),
+              payoff: parseFloat(payoff.toString()).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9}),
+              coverPayoff: parseFloat(coverPayoff.toString()).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9}),
+              collateral: parseFloat(collateralTokens.shift(-collateralDecimals).toString()).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9}),
+              payoffInNonCollateral: payoffInNonDeliveryToken == null ? null : parseFloat(payoffInNonDeliveryToken.toString()).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9}) });
             // logInfo("optinoExplorer", "recalculate - spot: " + spot + ", payoff: " + payoff + ", coverPayoff: " + coverPayoff + "; collateralTokens: " + collateralTokens + "; payoffInNonDeliveryToken: " + payoffInNonDeliveryToken);
           }
+          this.optino.payoffTable = payoffTable;
 
           this.optino.chartSeries = [{
             name: 'Optino Payoff',

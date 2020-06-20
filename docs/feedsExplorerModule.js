@@ -112,7 +112,7 @@ const FeedsExplorer = {
                            <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the feed contract address in a block explorer and alternative sources</span>
                           </div>
                         </div>
-                        <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="addFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked">
+                        <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="registeredFeeds" :fields="addFeedFields" :filter="searchRegistered" :filter-included-fields="['name', 'note']" head-variant="light" show-empty @row-clicked="rowClicked">
                           <!--
                           <template v-slot:empty="scope">
                             <p class="pt-4">{{ scope.emptyText }}</p>
@@ -233,7 +233,7 @@ const FeedsExplorer = {
               </b-collapse>
               -->
 
-              <b-table style="font-size: 85%;" small striped selectable select-mode="single" responsive hover :items="feedDataSorted" :fields="feedDataFields" head-variant="light" :current-page="currentPage" :per-page="perPage" :filter="filter" @filtered="onFiltered" :filter-included-fields="['name', 'note']" show-empty>
+              <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="feedDataSorted" :fields="feedDataFields" head-variant="light" :current-page="currentPage" :per-page="perPage" :filter="filter" @filtered="onFiltered" :filter-included-fields="['name', 'note']" show-empty>
 
                 <template v-slot:cell(name)="data">
                   <span v-b-popover.hover="data.item.name">{{ truncate(data.item.name, 24) }}</span>

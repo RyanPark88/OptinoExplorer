@@ -110,7 +110,7 @@ const TokensExplorer = {
                              <span class="text-right" style="font-size: 90%"><b-icon-exclamation-circle variant="danger" shift-v="1" font-scale="0.9"></b-icon-exclamation-circle> Always confirm the token contract address in a block explorer</span>
                             </div>
                           </div>
-                          <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="commonTokenList" :fields="addTokenTableFields" :filter="searchCommon" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
+                          <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="commonTokenList" :fields="addTokenTableFields" :filter="searchCommon" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
                             <!--
                             <template v-slot:empty="scope">
                               <p class="pt-4">{{ scope.emptyText }}</p>
@@ -158,7 +158,7 @@ const TokensExplorer = {
                             </div>
                           </div>
 
-                          <b-table style="font-size: 85%;" small striped selectable sticky-header select-mode="single" responsive hover :items="fakeTokenList" :fields="addTokenTableFields" :filter="searchFake" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
+                          <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="fakeTokenList" :fields="addTokenTableFields" :filter="searchFake" :filter-included-fields="['symbol', 'name']" head-variant="light" show-empty @row-clicked="rowClicked">
                             <!--
                             <template v-slot:empty="scope">
                               <p class="pt-4">{{ scope.emptyText }}</p>
@@ -212,7 +212,7 @@ const TokensExplorer = {
                   </b-card-body>
                 </b-modal>
 
-                <b-table style="font-size: 85%;" small striped selectable select-mode="single" responsive hover :items="tokenDataSorted" :fields="tokenDataFields" head-variant="light" :current-page="currentPage" :per-page="perPage" :filter="search" @filtered="onFiltered" :filter-included-fields="['symbol', 'name']" show-empty>
+                <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="tokenDataSorted" :fields="tokenDataFields" head-variant="light" :current-page="currentPage" :per-page="perPage" :filter="search" @filtered="onFiltered" :filter-included-fields="['symbol', 'name']" show-empty>
                   <template v-slot:empty="scope">
                     <div class="text-center my-2">{{ scope.emptyText }}</div>
                     <div class="text-center my-2 pt-4">Click <b-button size="sm" class="m-0 p-0" href="#" @click="$bvModal.show('bv-modal-addtoken')" variant="link" v-b-popover.hover="'Add new token'"><b-icon-plus shift-v="1" font-scale="1.4"></b-icon-plus></b-button> to customise your token list</div>
