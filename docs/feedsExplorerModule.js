@@ -589,7 +589,7 @@ const FeedsExplorer = {
     },
     formatValue(value, decimals) {
       // return parseFloat(new BigNumber(value).shift(-decimals).toFixed(decimals));
-      return parseFloat(new BigNumber(value).shift(-decimals).toFixed(decimals)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9});
+      return value == null || decimals == null ? null : parseFloat(new BigNumber(value).shift(-decimals).toFixed(decimals)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 9});
     },
     addFeedsToList(list) {
       logInfo("FeedsExplorer", "addFeedsToList(" + JSON.stringify(list) + ")");
