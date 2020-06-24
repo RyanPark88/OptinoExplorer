@@ -41,152 +41,198 @@ const OptinoExplorer = {
                   </template>
                   <b-card no-body bg-variant="light" class="m-1 p-1">
                     <b-card-body class="m-1 p-1">
-                      <b-form-group label-cols="4" label-size="sm" label="Type">
-                        <b-form-select size="sm" v-model="optino.optionType" :options="optinoTypes" @input="recalculate('optionType', $event)">
-                        </b-form-select>
-                      </b-form-group>
-                      <!--
-                      <b-form-group label-cols="4" label-size="sm" label="Type">
-                        <b-form-radio-group size="sm" v-model="optino.callPut" @input="recalculate('callPut', $event)">
-                          <b-form-radio value="0">Call</b-form-radio>
-                          <b-form-radio value="1">Put</b-form-radio>
-                        </b-form-radio-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="" v-if="optino.callPut == 0">
-                        <b-form-radio-group size="sm" v-model="optino.vanillaOrBounded" @input="recalculate('callPut', $event)">
-                          <b-form-radio value="0">Vanilla Call</b-form-radio>
-                          <b-form-radio value="1">Capped Call</b-form-radio>
-                        </b-form-radio-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="" v-if="optino.callPut != 0">
-                        <b-form-radio-group size="sm" v-model="optino.vanillaOrBounded" @input="recalculate('callPut', $event)">
-                          <b-form-radio value="0">Vanilla Put</b-form-radio>
-                          <b-form-radio value="1">Floored Put</b-form-radio>
-                        </b-form-radio-group>
-                      </b-form-group>
-                      -->
-                      <b-form-group label-cols="4" label-size="sm" label="Spot">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Click to select"></b-form-input>
-                          <b-input-group-append>
-                            <b-button size="sm" @click="recalculateFeed('show', $event); $bvModal.show('bv-modal-optinoFeed')" variant="primary" v-b-popover.hover="'Select spot'">{{ feedName(optino) }}</b-button>
-                          </b-input-group-append>
-                        </b-input-group>
+
+                      <b-form-group label-cols="3" label-size="sm" label="Type">
+                        <b-form inline>
+                          <label class="sr-only" for="formselect-optiontype">Option Type</label>
+                          <b-form-select size="sm" style="width: 200px;" id="formselect-optiontype" v-model="optino.optionType" :options="optinoTypes" @input="recalculate('optionType', $event)">
+                          </b-form-select>
+                        </b-form>
                       </b-form-group>
 
-                      <b-form-group label-cols="4" label-size="sm" label="Strike">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.strike" @input="recalculate('strike', $event)"></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="Cap" description="Cap (bound) for Capped Call. Set to 0 for Vanilla Call" v-if="optino.optionType == 'cc'">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.cap" @input="recalculate('cap', $event)"></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="Floor" description="Floor (bound) for Floored Put. Set to 0 for Vanilla Put" v-if="optino.optionType == 'fp'">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.floor" @input="recalculate('floor', $event)"></b-form-input>
-                        </b-input-group>
+                      <b-form-group label-cols="3" label-size="sm" label="Spot">
+                        <b-form inline>
+                          <b-form-input size="sm" style="width: 200px;" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Click to select"></b-form-input>
+                          <label class="sr-only" for="button-spot">Select Spot</label>
+                          <b-button class="ml-1" size="sm" id="button-spot" @click="recalculateFeed('show', $event); $bvModal.show('bv-modal-optinoFeed')" variant="primary" v-b-popover.hover="'Select spot'">{{ feedName(optino) }}</b-button>
+                        </b-form>
                       </b-form-group>
 
-                      <b-form-group label-cols="4" label-size="sm" label="Expiry" :description="'Selection in your local timezone. In UTC format: ' + formatUTC(expiryInMillis) + '. Time defaults to 08:00:00Z (UTC)'">
-                        <b-input-group>
-                          <!-- <b-form-input type="text" v-model.trim="expiry"></b-form-input> -->
-                          <flat-pickr v-model="optino.expiryInMillis" :config="dateConfig" class="form-control form-control-sm w-50" @input="recalculate('expiryInMillis', $event)"></flat-pickr>
-                          <template v-slot:append>
-                            <b-form-select size="sm" v-model.trim="optino.expirySelection" :options="expiryOptions" @input="expirySelected($event)"></b-form-select>
-                          </template>
-                        </b-input-group>
+                      <b-form-group label-cols="3" label-size="sm" :label="optino.optionType == 'fp' ? 'Floor and Strike' : optino.optionType == 'cc' ? 'Strike and Cap' : 'Strike'">
+                        <b-form inline>
+                          <span v-if="optino.optionType == 'fp'">
+                            <label class="sr-only" for="forminput-floor">Floor</label>
+                            <b-form-input size="sm" style="width: 200px;" id="forminput-floor" type="text" v-model.trim="optino.floor" @input="recalculate('floor', $event)"></b-form-input>
+                          </span>
+                          <label class="sr-only" for="forminput-strike">Strike</label>
+                          <label class="ml-1 mr-1" v-if="optino.optionType == 'fp'">to</label>
+                          <b-form-input size="sm" style="width: 200px;" id="forminput-strike" type="text" v-model.trim="optino.strike" @input="recalculate('strike', $event)"></b-form-input>
+                          <label class="ml-1 mr-1" v-if="optino.optionType == 'cc'">to</label>
+                          <span v-if="optino.optionType == 'cc'">
+                            <label class="sr-only" for="forminput-cap">Cap</label>
+                            <b-form-input size="sm" style="width: 200px;" id="forminput-cap" type="text" v-model.trim="optino.cap" @input="recalculate('cap', $event)"></b-form-input>
+                          </span>
+                        </b-form>
                       </b-form-group>
 
-                      <b-form-group label-cols="4" label-size="sm" label="Base token">
-                        <b-input-group>
-                          <!-- <b-form-select v-model="token0" :options="tokenOptions" class="mt-3"></b-form-select> -->
-                          <b-form-select size="sm" v-model="optino.token0" :options="tokenOptionsSorted" @input="recalculate('token0', $event)"></b-form-select>
-                        </b-input-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="Quote token">
-                        <b-input-group>
-                          <!-- <b-form-input type="text" v-model.trim="token1"></b-form-input> -->
-                          <b-form-select size="sm" v-model="optino.token1" :options="tokenOptionsSorted" @input="recalculate('token1', $event)"></b-form-select>
-                        </b-input-group>
+                      <b-form-group label-cols="3" label-size="sm" label="Expiry" :description="'Local ' + new Date(expiry*1000).toLocaleString() + ', UTC ' + formatUTC(expiry*1000) + '. Defaults to 08:00:00Z'">
+                        <b-form inline>
+                          <label class="sr-only" for="datepicker-expirydate">Date</label>
+                          <b-form-datepicker size="sm" id="datepicker-expirydate" v-model="optino.expiryDate" close-button></b-form-datepicker>
+                          <label class="sr-only" for="timepicker-expirytime">Expiry Time</label>
+                          <b-input-group size="sm" append="UTC">
+                            <b-form-timepicker size="sm" class="ml-1" id="timepicker-expirytime" v-model="optino.expiryTime" :hour12="false" show-seconds></b-form-timepicker>
+                          </b-input-group>
+                          <b-dropdown size="sm" class="ml-1" right variant="primary">
+                            <template v-slot:button-content>
+                              <b-icon-calendar3></b-icon-calendar3>
+                            </template>
+                            <b-dropdown-item v-for="(item, key) in expiries" @click="recalculate('setExpiry', item.value)" :key="key">
+                              {{ item.text }}
+                            </b-dropdown-item>
+                          </b-dropdown>
+                        </b-form>
                       </b-form-group>
 
-                      <b-form-group label-cols="4" label-size="sm" label="Tokens">
-                        <b-input-group size="sm" append="OPT & COV">
-                          <b-form-input size="sm" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
-                        </b-input-group>
+                      <b-form-group label-cols="3" label-size="sm" label="Pair">
+                        <b-form inline>
+                          <div class="d-flex m-0 p-0" style="height: 37px;">
+                            <div class="pr-1">
+                              <b-input-group size="sm">
+                                <label class="sr-only" for="formselect-token0">Base token</label>
+                                <b-form-select size="sm" style="width: 50%;" id="formselect-token0" v-model="optino.token0" :options="tokenOptionsSorted" @input="recalculate('token0', $event)"></b-form-select>
+                                <b-input-group-append>
+                                  <b-button :href="explorer + 'token/' + optino.token0" target="_blank" variant="outline-info">🔗</b-button>
+                                </b-input-group-append>
+                              </b-input-group>
+                            </div>
+                            <div class="pr-1">
+                              <label class="ml-1 mr-1">/</label>
+                            </div>
+                            <div class="pr-1">
+                              <b-input-group size="sm">
+                                <label class="sr-only" for="formselect-token1">Quote token</label>
+                                <b-form-select size="sm" style="width: 50%;" id="formselect-token1" v-model="optino.token1" :options="tokenOptionsSorted" @input="recalculate('token1', $event)"></b-form-select>
+                                <b-input-group-append>
+                                  <b-button :href="explorer + 'token/' + optino.token1" target="_blank" variant="outline-info">🔗</b-button>
+                                </b-input-group-append>
+                              </b-input-group>
+                            </div>
+                          </div>
+                        </b-form>
                       </b-form-group>
 
-                      <!--
-                      <b-form-group label-cols="4" label-size="sm" label="collateralToken">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralToken" readonly></b-form-input>
-                        </b-input-group>
+                      <b-form-group label-cols="3" label-size="sm" label="Tokens">
+                        <b-form inline>
+                          <label class="sr-only" for="forminput-tokens">Tokens</label>
+                          <b-input-group size="sm" append="OPT & COV">
+                            <b-form-input size="sm" style="width: 200px;" id="forminput-tokens" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
+                          </b-input-group>
+                        </b-form>
                       </b-form-group>
-                      -->
-                      <b-form-group label-cols="4" label-size="sm" label="Collateral to escrow">
-                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralTokens" readonly></b-form-input>
-                        </b-input-group>
+
+                      <b-form-group label-cols="3" label-size="sm" label="Collateral">
+                        <b-form inline>
+                          <label class="sr-only" for="forminput-collateral">Collateral</label>
+                          <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                            <b-form-input size="sm" style="width: 200px;" id="forminput-collateral" type="text" v-model.trim="optino.collateralTokens" readonly></b-form-input>
+                          </b-input-group>
+                        </b-form>
                       </b-form-group>
-                      <!--
-                      <b-form-group label-cols="4" label-size="sm" label="collateralDecimals">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralDecimals" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      -->
-                      <b-form-group label-cols="4" label-size="sm" label="Fee">
-                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralFee" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="Total collateral + fee">
-                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                          <b-form-input size="sm" type="text" v-model.trim="optino.collateralTokensPlusFee" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <!--
-                      <b-form-group label-cols="4" label-size="sm" label="feedDecimals0">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.feedDecimals0" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      -->
-                      <b-form-group label-cols="4" label-size="sm" label="currentSpot">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" v-model.trim="optino.currentSpot" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <b-form-group label-cols="4" label-size="sm" label="currentPayoff">
-                        <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                          <b-form-input size="sm" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <!--
-                      <b-form-group label-cols="4" label-size="sm" label="payoffs">
-                        <b-input-group>
-                          <b-form-input size="sm" type="text" :value="payoffs == null ? '' : JSON.stringify(payoffs)" readonly></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      -->
 
                       <b-tabs small card v-model="optinoFeedMode" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
                         <b-tab title="Payoff Chart">
-                          <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
                         </b-tab>
                         <b-tab title="Payoff Table">
-                          <b-table style="font-size: 85%;" small striped outlined selectable sticky-header select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
-                          </b-table>
                         </b-tab>
                         <b-tab title="Mint">
-                          Mint
                         </b-tab>
-                        <b-tab title="Series Info" v-if="optino.series">
+                        <b-tab title="Series Info" :disabled="!optino.series">
+                        </b-tab>
+                        <b-tab title="All">
+                        </b-tab>
+
+                        <div v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 4">
+
+                          <b-form-group label-cols="3" label-size="sm" label="Current Spot">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-currentSpot">Current Spot</label>
+                              <b-form-input size="sm" style="width: 200px;" id="forminput-currentSpot" type="text" v-model.trim="optino.currentSpot" readonly></b-form-input>
+                            </b-form>
+                          </b-form-group>
+                          <b-form-group label-cols="3" label-size="sm" label="Current Optino Payoff">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-currentOptinoPayoff">Current Spot</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-currentOptinoPayoff" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
+                        </div>
+
+                        <div v-if="optinoFeedMode == 0 || optinoFeedMode == 4">
+                          <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
+                        </div>
+                        <div v-if="optinoFeedMode == 1 || optinoFeedMode == 4">
+                          <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
+                          </b-table>
+                        </div>
+                        <div v-if="optinoFeedMode == 2 || optinoFeedMode == 4">
+                          <b-form-group label-cols="3" label-size="sm" label="Fee">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-fee">Fee</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-fee" type="text" v-model.trim="optino.collateralFee" readonly></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
+
+                          <b-form-group label-cols="3" label-size="sm" label="Collateral + Fee">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-collateralplusfee">Collateral + Fee</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-collateralplusfee" type="text" v-model.trim="optino.collateralTokensPlusFee" readonly></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
+
+                          <b-form-group label-cols="3" label-size="sm" label="Your Balance">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-balance">Your Balance</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-balance" type="text" :value="tokenData[optino.collateralToken].balance" readonly></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
+
+                          <b-form-group label-cols="3" label-size="sm" label="Your Allowance">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-allowance">Your Allowance</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-allowance" type="text" :value="tokenData[optino.collateralToken].allowance" readonly></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
+
+                          <b-form-group label-cols="3" label-size="sm" label="Set Allowance">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-setallowance">Set Allowance</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-setallowance" type="text" v-model.trim="optino.collateralAllowance"></b-form-input>
+                              </b-input-group>
+                              <b-button size="sm" class="ml-1" @click="setCollateralAllowance()" variant="primary" v-b-popover.hover="'Set Allowance'">Set Allowance</b-button>
+                            </b-form>
+                          </b-form-group>
+
+                          <b-form-group label-cols="3" label-size="sm" label="Mint Optinos">
+                            <b-form inline>
+                              <b-button size="sm" class="ml-1" @click="mintOptinos()" variant="primary" v-b-popover.hover="'Mint Optinos'">Mint Optinos</b-button>
+                            </b-form>
+                          </b-form-group>
+                        </div>
+                        <div v-if="optinoFeedMode == 3 || optinoFeedMode == 4">
                           Series Info
-                        </b-tab>
+                        </div>
                       </b-tabs>
 
                     </b-card-body>
@@ -551,15 +597,16 @@ const OptinoExplorer = {
                         <b-form-radio value="1">Put</b-form-radio>
                       </b-form-radio-group>
                     </b-form-group>
+                    <!--
                     <b-form-group label-cols="3" label="expiry" :description="'Selection in your local timezone. In UTC format: ' + formatUTC(expiryInMillis) + '. Time defaults to 08:00:00Z (UTC)'">
                       <b-input-group>
-                        <!-- <b-form-input type="text" v-model.trim="expiry"></b-form-input> -->
                         <flat-pickr v-model="expiryInMillis" :config="dateConfig" class="form-control" @input="recalculate('expiryInMillis', $event)"></flat-pickr>
                         <template v-slot:append>
                           <b-form-select v-model.trim="expirySelection" :options="expiryOptions" @input="expirySelected($event)"></b-form-select>
                         </template>
                       </b-input-group>
                     </b-form-group>
+                    -->
 
                     <b-form-group label-cols="3" label="strike">
                       <b-input-group>
@@ -696,7 +743,7 @@ const OptinoExplorer = {
 
         series: null,
 
-        optionType: 'vc',
+        optionType: 'cc',
 
         feed0: "0x8468b2bdce073a157e560aa4d9ccf6db1db98507",
         feed1: "0x0000000000000000000000000000000000000000",
@@ -713,7 +760,9 @@ const OptinoExplorer = {
         cap: "500",
         floor: "150",
 
-        expiryInMillis: moment().utc().add(moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf() < moment() ? 1 : 0, 'd').add(1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf(),
+        expiryDate: null,
+        expiryTime: null,
+        // expiryInMillis: moment().utc().add(moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf() < moment() ? 1 : 0, 'd').add(1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf(),
         expirySelection: "+1d",
 
         token0: "0x452a2652d1245132f7f47700c24e217faceb1c6c",
@@ -727,6 +776,8 @@ const OptinoExplorer = {
         collateralDecimals: null,
         collateralFee: null,
         collateralTokensPlusFee: null,
+
+        collateralAllowance: "0",
 
         currentSpot: null,
         currentPayoff: null,
@@ -750,7 +801,7 @@ const OptinoExplorer = {
       inverse1: 0,
       calculatedSpot: null,
       callPut: 0,
-      expiryInMillis: moment().utc().add(moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf() < moment() ? 1 : 0, 'd').add(1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf(),
+      // expiryInMillis: moment().utc().add(moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf() < moment() ? 1 : 0, 'd').add(1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0).valueOf(),
       strike: "200",
       cap: "300",
       floor: "100",
@@ -883,7 +934,8 @@ const OptinoExplorer = {
     },
     dateConfig() {
       return {
-        dateFormat: 'YYYY-MM-DD\\\\THH:mm:ssZ',
+        // dateFormat: 'YYYY-MM-DD\\\\THH:mm:ssZ',
+        dateFormat: 'Z',
         enableTime: true,
         enableSeconds: true,
         time_24hr: true,
@@ -903,7 +955,7 @@ const OptinoExplorer = {
           // );
         },
         formatDate(date, format) {
-          return moment(date).format();
+          return moment(date).utc().format();
           // return moment(date).utc().format();
           // return moment.tz([
           //   date.getFullYear(),
@@ -921,7 +973,13 @@ const OptinoExplorer = {
       return this.callPut == 0 ? this.cap : this.floor;
     },
     expiry() {
-      return parseInt(new Date(this.expiryInMillis).getTime()/1000); // : parseInt(this.expiryInMillis / 1000);
+      logInfo("optinoExplorer", "expiry(" + this.optino.expiryDate + " " + this.optino.expiryTime + ")");
+      if (this.optino.expiryDate != null && this.optino.expiryTime != null) {
+        var e = moment.utc(this.optino.expiryDate + " " + this.optino.expiryTime).unix();
+        return e;
+      }
+      return null;
+      // return parseInt(new Date(this.expiryInMillis).getTime()/1000); // : parseInt(this.expiryInMillis / 1000);
     },
     baseSymbol() {
       return this.tokenData[this.baseToken] == null ? "ETH" : this.tokenData[this.baseToken].symbol;
@@ -1053,7 +1111,7 @@ const OptinoExplorer = {
       });
       var results = [];
       sortedData.forEach(function(e) {
-        results.push({ value: e.address.toLowerCase(), text: e.address.substring(0, 10) + " " + e.symbol + " '" + e.name + "' " + e.decimals + " bal " + parseFloat(new BigNumber(e.balance).toFixed(8)) + " allow " + parseFloat(new BigNumber(e.allowance).toFixed(8)), disabled: false });
+        results.push({ value: e.address.toLowerCase(), text: e.symbol + " '" + e.name + "' " + e.address.substring(0, 10) + " " + e.decimals + " bal " + parseFloat(new BigNumber(e.balance).toFixed(8)) + " allow " + parseFloat(new BigNumber(e.allowance).toFixed(8)), disabled: false });
       });
       return results;
     },
@@ -1142,7 +1200,8 @@ const OptinoExplorer = {
     chartOptions() {
       return {
         chart: {
-          height: 600,
+          // height: 600,
+          // width: 600,
           type: 'line',
           stacked: false,
         },
@@ -1271,6 +1330,52 @@ const OptinoExplorer = {
         },
       };
     },
+    expiries() {
+      var results = [];
+      results.push({ value: null, text: 'Select' });
+
+      var check = moment().utc().hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
+      var day0 = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
+      // logInfo("expiries", "check: " + moment(check).utc().format() + ", day0: " + moment(day0).utc().format() + ", now: " + moment().utc().format());
+      var d = moment(day0);
+      results.push({ value: d.valueOf(), text: '+0d (' + d.format() + ')' });
+      d = moment(day0).add(1, 'd');
+      results.push({ value: d.valueOf(), text: '+1d (' + d.format() + ')' });
+      d = moment(day0).add(2, 'd');
+      results.push({ value: d.valueOf(), text: '+2d (' + d.format() + ')' });
+      d = moment(day0).add(3, 'd');
+      results.push({ value: d.valueOf(), text: '+3d (' + d.format() + ')' });
+      d = moment(day0).add(4, 'd');
+      results.push({ value: d.valueOf(), text: '+4d (' + d.format() + ')' });
+      d = moment(day0).add(5, 'd');
+      results.push({ value: d.valueOf(), text: '+5d (' + d.format() + ')' });
+      d = moment(day0).add(6, 'd');
+      results.push({ value: d.valueOf(), text: '+6d (' + d.format() + ')' });
+      d = moment(day0).add(1, 'w');
+      results.push({ value: d.valueOf(), text: '+1w (' + d.format() + ')' });
+
+      check = moment().utc().day(DEFAULTEXPIRYUTCDAYOFWEEK).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
+      var week0 = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'w').day(DEFAULTEXPIRYUTCDAYOFWEEK).hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
+      // logInfo("expiries", "check: " + moment(check).utc().format() + ", week0: " + moment(week0).utc().format() + ", now: " + moment().utc().format());
+      var w = moment(week0);
+      results.push({ value: w.valueOf(), text: 'End of this week ' + w.format() });
+      w = moment(week0).add(1, 'w');
+      results.push({ value: w.valueOf(), text: 'End of next week ' + w.format() });
+      w = moment(week0).add(2, 'w');
+      results.push({ value: w.valueOf(), text: 'End of the following week ' + w.format() });
+
+      check = moment().utc().add(1, 'M').date(1).add(-1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
+      var month0 = moment().utc().add(check.valueOf() < moment() ? 1 : 0, 'M').add(1, 'M').date(1).add(-1, 'd').hours(DEFAULTEXPIRYUTCHOUR).minutes(0).seconds(0);
+      // logInfo("expiries", "check: " + moment(check).utc().format() + ", month0: " + month0.format() + ", now: " + moment().utc().format());
+      var m = moment(month0);
+      results.push({ value: m.valueOf(), text: 'End of this month ' + m.format() });
+      m = moment(month0).add(1, 'M').add(1, 'M').date(1).add(-1, 'd');
+      results.push({ value: m.valueOf(), text: 'End of next month ' + m.format() });
+      m = moment(month0).add(2, 'M').add(1, 'M').date(1).add(-1, 'd');
+      results.push({ value: m.valueOf(), text: 'End of the following month ' + m.format() });
+
+      return results;
+    }
   },
   mounted() {
     // logDebug("OptinoExplorer", "mounted() Called");
@@ -1583,6 +1688,12 @@ const OptinoExplorer = {
 
       if (source == "new") {
         this.optino.series = null;
+        if (this.optino.expiryDate == null || this.optino.expiryTime == null) {
+          var mExpiry = moment(this.expiries[1].value).utc();
+          logInfo("optinoExplorer", "recalculate - new mExpiry: " + mExpiry.format());
+          this.optino.expiryDate = mExpiry.format("YYYY-MM-DD");
+          this.optino.expiryTime = mExpiry.format("HH:mm:ss");
+        }
       }
       if (source == "setSeries") {
         this.optino.series = event;
@@ -1595,13 +1706,21 @@ const OptinoExplorer = {
         this.optino.feed0 = event.feeds[0];
         this.optino.feed1 = event.feeds[1];
 
-        this.optino.type0 = event.feedParameters[0];
-        this.optino.type1 = event.feedParameters[1];
-        this.optino.decimals0 = event.feedParameters[2];
-        this.optino.decimals1 = event.feedParameters[3];
-        this.optino.inverse0 = event.feedParameters[4];
-        this.optino.inverse1 = event.feedParameters[5];
+        this.optino.type0 = parseInt(event.feedParameters[0]);
+        this.optino.type1 = parseInt(event.feedParameters[1]);
+        this.optino.decimals0 = parseInt(event.feedParameters[2]);
+        this.optino.decimals1 = parseInt(event.feedParameters[3]);
+        this.optino.inverse0 = parseInt(event.feedParameters[4]);
+        this.optino.inverse1 = parseInt(event.feedParameters[5]);
 
+        // expiryDate: "2020-11-21",
+        // expiryTime: "08:00:00",
+        var mExpiry = moment(event.expiry * 1000).utc();
+        logInfo("optinoExplorer", "recalculate - setSeries mExpiry: " + mExpiry.format());
+        this.optino.expiryDate = mExpiry.format("YYYY-MM-DD");
+        this.optino.expiryTime = mExpiry.format("HH:mm:ss");
+        logInfo("optinoExplorer", "recalculate - setSeries expiryDate: " + this.optino.expiryDate);
+        logInfo("optinoExplorer", "recalculate - setSeries expiryTime: " + this.optino.expiryTime);
         this.optino.expiryInMillis = event.expiry * 1000;
 
         this.optino.token0 = event.pair[0];
@@ -1790,7 +1909,7 @@ const OptinoExplorer = {
     },
     setCollateralAllowance(event) {
       logDebug("optinoExplorer", "setCollateralAllowance()");
-      this.$bvModal.msgBoxConfirm('Set collateral allowance ' + this.collateralAllowance + ' ?', {
+      this.$bvModal.msgBoxConfirm('Set collateral allowance ' + this.optino.collateralAllowance + ' ?', {
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
@@ -1804,10 +1923,10 @@ const OptinoExplorer = {
         .then(value1 => {
           if (value1) {
             var factoryAddress = store.getters['optinoFactory/address']
-            var tokenContract = web3.eth.contract(ERC20ABI).at(this.collateralToken);
-            logInfo("optinoExplorer", "setCollateralAllowance tokenContract.approve('" + factoryAddress + "', '" + this.collateralAllowance + "')");
+            var tokenContract = web3.eth.contract(ERC20ABI).at(this.optino.collateralToken);
+            logInfo("optinoExplorer", "setCollateralAllowance tokenContract.approve('" + factoryAddress + "', '" + this.optino.collateralAllowance + "')");
             // TODO need to use baseDecimals/quoteDecimals
-            var value = new BigNumber(this.collateralAllowance).shift(this.collateralDecimals).toString();
+            var value = new BigNumber(this.optino.collateralAllowance).shift(this.optino.collateralDecimals).toString();
             logInfo("optinoExplorer", "  value=" + value);
             tokenContract.approve(factoryAddress, value, { from: store.getters['connection/coinbase'] }, function(error, tx) {
               if (!error) {
@@ -1829,7 +1948,7 @@ const OptinoExplorer = {
     },
     mintOptinos(event) {
       logDebug("optinoExplorer", "mintOptinos()");
-      this.$bvModal.msgBoxConfirm('Mint ' + this.tokens + ' optinos?', {
+      this.$bvModal.msgBoxConfirm('Mint ' + this.optino.tokens + ' optinos?', {
           title: 'Please Confirm',
           size: 'sm',
           buttonSize: 'sm',
@@ -1842,41 +1961,39 @@ const OptinoExplorer = {
         })
         .then(value1 => {
           if (value1) {
-            logInfo("optinoExplorer", "mintOptinos(" + this.tokens + ")");
+            logInfo("optinoExplorer", "mintOptinos(" + this.optino.tokens + ")");
             var factoryAddress = store.getters['optinoFactory/address']
             var factory = web3.eth.contract(OPTINOFACTORYABI).at(factoryAddress);
-            var feedData = store.getters['feeds/feedData'];
-            var feed = feedData[this.feed0.toLowerCase()];
-            logInfo("optinoExplorer", "this.feed0: " + this.feed0);
-            logInfo("optinoExplorer", "feed: " + feed);
-            logInfo("optinoExplorer", "feedData: " + JSON.stringify(feed));
-            if (!feed && (this.type0 == 0xff || this.decimals0 == 0xff)) {
-              alert("Feed data not available yet");
-            } else {
-              var feedDecimals0 = this.decimals0 != 0xff ? this.decimals0 : feed.decimals;
-              logInfo("optinoExplorer", "feedDecimals0: " + feedDecimals0);
-              var OPTINODECIMALS = 18;
-              var data = factory.mint.getData([this.token0, this.token1], [this.feed0, this.feed1],
-                [this.type0, this.type1, this.decimals0, this.decimals1, this.inverse0, this.inverse1],
-                [this.callPut, this.expiry, new BigNumber(this.strike).shift(feedDecimals0), new BigNumber(this.bound).shift(feedDecimals0), new BigNumber(this.tokens).shift(OPTINODECIMALS)], ADDRESS0);
-              logInfo("optinoExplorer", "data=" + data);
 
-              factory.mint([this.token0, this.token1], [this.feed0, this.feed1],
-                [this.type0, this.type1, this.decimals0, this.decimals1, this.inverse0, this.inverse1],
-                [this.callPut, this.expiry, new BigNumber(this.strike).shift(feedDecimals0), new BigNumber(this.bound).shift(feedDecimals0), new BigNumber(this.tokens).shift(OPTINODECIMALS)], ADDRESS0, { from: store.getters['connection/coinbase'] }, function(error, tx) {
-                logInfo("optinoExplorer", "mintOptinos DEBUG1");
-                if (!error) {
-                  logInfo("optinoExplorer", "mintOptinos() factory.mintOptino() tx: " + tx);
-                  store.dispatch('connection/addTx', tx);
-                } else {
-                  logInfo("optinoExplorer", "mintOptinos() factory.mintOptino() error: ");
-                  console.table(error);
-                  store.dispatch('connection/setTxError', error.message);
-                }
-              });
-
-              event.preventDefault();
+            var callPut = this.optino.optionType == 'vc' || this.optino.optionType == 'cc' ? 0 : 1;
+            var bound = "0";
+            if (this.optino.optionType == 'cc') {
+              bound = this.optino.cap;
+            } else if (this.optino.optionType == 'fp') {
+              bound = this.optino.floor;
             }
+
+            var OPTINODECIMALS = 18;
+            var data = factory.mint.getData([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
+              [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
+              [callPut, this.expiry, new BigNumber(this.optino.strike).shift(this.optino.feedDecimals0), new BigNumber(bound).shift(this.optino.feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], ADDRESS0);
+            logInfo("optinoExplorer", "data=" + data);
+
+            factory.mint([this.optino.token0, this.optino.token1], [this.optino.feed0, this.optino.feed1],
+              [this.optino.type0, this.optino.type1, this.optino.decimals0, this.optino.decimals1, this.optino.inverse0, this.optino.inverse1],
+              [callPut, this.expiry, new BigNumber(this.optino.strike).shift(this.optino.feedDecimals0), new BigNumber(bound).shift(this.optino.feedDecimals0), new BigNumber(this.optino.tokens).shift(OPTINODECIMALS)], ADDRESS0, { from: store.getters['connection/coinbase'] }, function(error, tx) {
+              logInfo("optinoExplorer", "mintOptinos DEBUG1");
+              if (!error) {
+                logInfo("optinoExplorer", "mintOptinos() factory.mintOptino() tx: " + tx);
+                store.dispatch('connection/addTx', tx);
+              } else {
+                logInfo("optinoExplorer", "mintOptinos() factory.mintOptino() error: ");
+                console.table(error);
+                store.dispatch('connection/setTxError', error.message);
+              }
+            });
+
+            event.preventDefault();
           }
         })
         .catch(err => {
