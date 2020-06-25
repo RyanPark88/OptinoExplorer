@@ -85,7 +85,7 @@ const Connection = {
           Please use the <b-link href="https://metamask.io" target="_blank">MetaMask</b-link> addon with Firefox, Chromium, Opera or Chrome, or any other other web3 browser to view this page
         </b-card-text>
       </b-card>
-      <b-button v-b-toggle.connection size="sm" block variant="outline-info" v-if="isOk">{{ networkName }} <b-spinner class="float-right" :variant="spinnerVariant" small type="grow" label="Spinning" /></b-button>
+      <b-button v-b-toggle.connection size="sm" block variant="outline-info" v-if="isOk">{{ networkName }} <b-spinner class="float-right mt-1" :variant="spinnerVariant" style="animation: spinner-grow 3.75s linear infinite;" small type="grow" label="Spinning" /></b-button>
       <b-collapse id="connection" visible class="mt-2">
         <b-card no-body class="border-0" v-if="isOk">
           <b-row>
