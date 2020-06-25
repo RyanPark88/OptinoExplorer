@@ -415,12 +415,12 @@ const OptinoExplorer = {
                   </b-card>
                 </b-modal>
 
-                <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['base', 'quote', 'feed0', 'feed1', 'type', 'strike', 'bound', 'optino', 'cover']" show-empty>
-                  <template v-slot:cell(base)="data">
-                    <b-link :href="explorer + 'token/' + data.item.pair[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[0]) + ' on the block explorer'">{{ tokenSymbol(data.item.pair[0]) }}</b-link>
+                <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['optionType', 'baseSymbol', 'quoteSymbol', 'strike', 'bound', 'optinoName', 'balance', 'optinoSymbol', 'coverSymbol', 'optinoBalance', 'coverBalance']" show-empty>
+                  <template v-slot:cell(baseSymbol)="data">
+                    <b-link :href="explorer + 'token/' + data.item.pair[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[0]) + ' on the block explorer'">{{ data.item.baseSymbol }}</b-link>
                   </template>
-                  <template v-slot:cell(quote)="data">
-                    <b-link :href="explorer + 'token/' + data.item.pair[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[1]) + ' on the block explorer'">{{ tokenSymbol(data.item.pair[1]) }}</b-link>
+                  <template v-slot:cell(quoteSymbol)="data">
+                    <b-link :href="explorer + 'token/' + data.item.pair[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[1]) + ' on the block explorer'">{{ data.item.quoteSymbol }}</b-link>
                   </template>
                   <template v-slot:cell(feeds)="data">
                     <b-link :href="explorer + 'address/' + data.item.feeds[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.feeds[0] + ' on the block explorer'">{{ displayFeed(data.item.feeds[0]) }}</b-link>
@@ -429,9 +429,11 @@ const OptinoExplorer = {
                       <b-link :href="explorer + 'address/' + data.item.feeds[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.feeds[1] + ' on the block explorer'">{{ displayFeed(data.item.feeds[1]) }}</b-link>
                     </span>
                   </template>
+                  <!--
                   <template v-slot:cell(type)="data">
-                    {{ formatType(data.item.callPut, data.item.bound) }}
+                    {{ formatType(data.item.optionType, data.item.bound) }}
                   </template>
+                  -->
                   <template v-slot:cell(expiry)="data">
                     {{ formatUTC(data.item.expiry * 1000) }}
                   </template>
@@ -579,12 +581,11 @@ const OptinoExplorer = {
       ],
       seriesDataFields: [
         { key: 'index', label: '#', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
-        { key: 'type', label: 'Type', sortable: true },
-        { key: 'base', label: 'Base', sortable: true, filterByFormatted: true },
-        { key: 'quote', label: 'Quote', sortable: true },
-        { key: 'feeds', label: 'Feed(s)', sortable: true },
-        // { key: 'feed1', label: 'Feed1', sortable: true },
+        { key: 'optionType', label: 'Type', sortable: true },
+        { key: 'baseSymbol', label: 'Base', sortable: true },
+        { key: 'quoteSymbol', label: 'Quote', sortable: true },
         { key: 'expiry', label: 'Expiry', sortable: true },
+        { key: 'feeds', label: 'Feed(s)', sortable: true },
         { key: 'floor', label: 'Floor', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'strike', label: 'Strike', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'cap', label: 'Cap', sortable: true, thClass: 'text-right', tdClass: 'text-right' },

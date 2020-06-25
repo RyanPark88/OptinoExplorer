@@ -450,7 +450,9 @@ const optinoFactoryModule = {
               var spot = data[4].toString();
               var timestamp = series[7];
 
-              [pair[0], pair[1], optinos[0], optinos[1]].forEach(async function(address) {
+              var tokens = [pair[0], pair[1], optinos[0], optinos[1]];
+              for (var tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+                var address = tokens[tokenIndex];
                 if (!(address in state.tokenData)) {
                   commit('processingToken', address);
                   var _tokenInfo = promisify(cb => tokenToolz.getTokenInfo(address, store.getters['connection/coinbase'], store.getters['optinoFactory/address'], cb));
@@ -463,11 +465,38 @@ const optinoFactoryModule = {
                   var allowance = tokenInfo[3].shift(-decimals).toString();
                   commit('updateToken', { address: address, symbol: symbol, name: name, decimals: decimals, totalSupply: totalSupply, balance: balance, allowance: allowance, source: token.source } );
                 }
-              });
+              }
+              // [pair[0], pair[1], optinos[0], optinos[1]].forEach(async function(address) {
+              //   if (!(address in state.tokenData)) {
+              //     commit('processingToken', address);
+              //     var _tokenInfo = promisify(cb => tokenToolz.getTokenInfo(address, store.getters['connection/coinbase'], store.getters['optinoFactory/address'], cb));
+              //     var tokenInfo = await _tokenInfo;
+              //     var symbol = tokenInfo[4];
+              //     var name = tokenInfo[5];
+              //     var decimals = parseInt(tokenInfo[0]);
+              //     var totalSupply = tokenInfo[1].shift(-decimals).toString();
+              //     var balance = tokenInfo[2].shift(-decimals).toString();
+              //     var allowance = tokenInfo[3].shift(-decimals).toString();
+              //     commit('updateToken', { address: address, symbol: symbol, name: name, decimals: decimals, totalSupply: totalSupply, balance: balance, allowance: allowance, source: token.source } );
+              //   }
+              // });
+
+              var optionType;
+              if (parseInt(callPut) == 0) {
+                optionType = new BigNumber(bound).eq(0) ? "Vanilla Call" : "Capped Call";
+              } else {
+                optionType = new BigNumber(bound).eq(0) ? "Vanilla Put" : "Floored Put";
+              }
 
               if (!(seriesKey in state.seriesData) || state.seriesData[seriesKey].timestamp < timestamp) {
                 commit('updateSeries', { seriesKey: seriesKey, series: { index: seriesIndex, seriesKey: seriesKey, pair: pair, feeds: feeds, feedParameters: feedParameters, feedDecimals0: feedDecimals0,
-                  callPut: callPut, expiry: expiry, strike: strike, bound: bound, spot: spot, timestamp: timestamp, optinos: optinos } });
+                  callPut: callPut, expiry: expiry, strike: strike, bound: bound, spot: spot, timestamp: timestamp, optinos: optinos,
+                  optionType: optionType,
+                  baseSymbol: state.tokenData[pair[0]].symbol, quoteSymbol: state.tokenData[pair[1]].symbol,
+                  optinoSymbol: state.tokenData[optinos[0]].symbol, coverSymbol: state.tokenData[optinos[1]].symbol,
+                  optinoName: state.tokenData[optinos[0]].name, coverName: state.tokenData[optinos[1]].name,
+                  optinoBalance: state.tokenData[optinos[0]].balance, coverBalance: state.tokenData[optinos[1]].balance,
+                 } });
               }
             }
 
