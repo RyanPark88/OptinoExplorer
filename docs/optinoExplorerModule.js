@@ -589,7 +589,12 @@ const OptinoExplorer = {
         { key: 'strike', label: 'Strike', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'cap', label: 'Cap', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'optinoAndCover', label: 'Optino/Cover', sortable: true },
-        { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right',
+          // formatter: (value, key, item) => {
+          //   return this.tokenBalance(item.optinos[0]) + ' ' + this.tokenBalance(item.optinos[1]);
+          //   // return "a" + value + " " + key + " " + JSON.stringify(item) + "z";
+          // }
+        },
         // { key: 'decimals', label: 'Decimals', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'totalSupply', label: 'Total Supply', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
