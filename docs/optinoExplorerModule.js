@@ -147,7 +147,6 @@ const OptinoExplorer = {
                         <b-tab title="Payoff Table">
                         </b-tab>
                         <b-tab title="Series Info" :disabled="!optino.series">
-                          <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(optino.series, null, 4)" rows="1" max-rows="100"></b-form-textarea>
                         </b-tab>
                         <b-tab title="All">
                         </b-tab>
@@ -250,8 +249,8 @@ const OptinoExplorer = {
                           </b-table>
                         </div>
 
-                        <div v-if="optinoFeedMode == 4 || optinoFeedMode == 4">
-                          Series Info
+                        <div v-if="optinoFeedMode == 4 || optinoFeedMode == 5">
+                          <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(optino.series, null, 4)" rows="1" max-rows="100"></b-form-textarea>
                         </div>
                       </b-tabs>
 
