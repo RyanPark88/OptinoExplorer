@@ -300,8 +300,9 @@ const optinoFactoryModule = {
         currentToken.totalSupply != token.totalSupply ||
         currentToken.balance != token.balance ||
         currentToken.allowance != token.allowance ||
-        currentToken.source != token.source) {
-        Vue.set(state.tokenData, token.address.toLowerCase(), {address: token.address, symbol: token.symbol, name: token.name, decimals: token.decimals, totalSupply: token.totalSupply, balance: token.balance, allowance: token.allowance, source: token.source });
+        currentToken.source != token.source ||
+        currentToken.type != token.type) {
+        Vue.set(state.tokenData, token.address.toLowerCase(), {address: token.address, symbol: token.symbol, name: token.name, decimals: token.decimals, totalSupply: token.totalSupply, balance: token.balance, allowance: token.allowance, source: token.source, type: token.type });
         // logInfo("optinoFactoryModule", "mutations.updateToken - state.tokenData: " +  JSON.stringify(state.tokenData));
         // localStorage.setItem('tokenData', JSON.stringify(state.tokenData));
       // } else {
@@ -463,7 +464,8 @@ const optinoFactoryModule = {
                   var totalSupply = tokenInfo[1].shift(-decimals).toString();
                   var balance = tokenInfo[2].shift(-decimals).toString();
                   var allowance = tokenInfo[3].shift(-decimals).toString();
-                  commit('updateToken', { address: address, symbol: symbol, name: name, decimals: decimals, totalSupply: totalSupply, balance: balance, allowance: allowance, source: token.source } );
+                  var tokenType = address == pair[0] || address == pair[1] ? "token" : "optino";
+                  commit('updateToken', { address: address, symbol: symbol, name: name, decimals: decimals, totalSupply: totalSupply, balance: balance, allowance: allowance, source: "factory", type: tokenType } );
                 }
               }
               // [pair[0], pair[1], optinos[0], optinos[1]].forEach(async function(address) {
