@@ -456,10 +456,8 @@ const OptinoExplorer = {
                     <b-link :href="explorer + 'token/' + data.item.optinos[1] + '?a=' + coinbase" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.optinos[1]) + ' on the block explorer'">{{ tokenBalance(data.item.optinos[1]) }}</b-link>
                   </template>
                   <template v-slot:cell(extra)="row">
-                    <b-link @click="row.toggleDetails" class="card-link m-0 p-0" v-b-popover.hover="'Show ' + (row.detailsShowing ? 'less' : 'more')"><b-icon-caret-up-fill font-scale="0.9" v-if="row.detailsShowing"></b-icon-caret-up-fill><b-icon-caret-down-fill font-scale="0.9" v-if="!row.detailsShowing"></b-icon-caret-down-fill></b-link>
-                    <!-- <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('show', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button> -->
+                    <!-- <b-link @click="row.toggleDetails" class="card-link m-0 p-0" v-b-popover.hover="'Show ' + (row.detailsShowing ? 'less' : 'more')"><b-icon-caret-up-fill font-scale="0.9" v-if="row.detailsShowing"></b-icon-caret-up-fill><b-icon-caret-down-fill font-scale="0.9" v-if="!row.detailsShowing"></b-icon-caret-down-fill></b-link> -->
                     <b-link @click="recalculate('setSeries', row.item); $bvModal.show('bv-modal-optino')" class="card-link m-0 p-0" v-b-popover.hover="'Edit ' + row.item.index + ' series'"><b-icon-pencil-square font-scale="0.9"></b-icon-pencil-square></b-link>
-                    <!-- <b-link @click="removeTokenFromList(row.item.address, row.item.symbol)" class="card-link m-0 p-0" v-b-popover.hover="'Remove ' + row.item.symbol + ' from list. This can be added back later.'"><b-icon-trash font-scale="0.9"></b-icon-trash></b-link> -->
                   </template>
                   <template v-slot:row-details="row">
                     <b-card no-body class="m-1 mt-2 p-1">
