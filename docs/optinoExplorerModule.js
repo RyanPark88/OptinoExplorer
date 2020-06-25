@@ -147,6 +147,7 @@ const OptinoExplorer = {
                         <b-tab title="Payoff Table">
                         </b-tab>
                         <b-tab title="Series Info" :disabled="!optino.series">
+                          <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(optino.series, null, 4)" rows="1" max-rows="100"></b-form-textarea>
                         </b-tab>
                         <b-tab title="All">
                         </b-tab>
