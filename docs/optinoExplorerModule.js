@@ -137,29 +137,29 @@ const OptinoExplorer = {
                         <b-form-input size="sm" style="width: 200px;" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
                       </b-form-group>
 
-                      <b-form-group label-cols="3" label-size="sm" label="Collateral" description="In Base token for calls and Quote token for puts">
-                        <b-form inline>
-                          <label class="sr-only" for="forminput-collateral">Collateral</label>
-                          <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 200px;" id="forminput-collateral" type="text" v-model.trim="optino.collateralTokens" readonly placeholder="Enter details above"></b-form-input>
-                          </b-input-group>
-                        </b-form>
-                      </b-form-group>
-
                       <b-tabs small card v-model="optinoFeedMode" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
+                        <b-tab title="Calcs">
+                        </b-tab>
+                        <b-tab title="Mint">
+                        </b-tab>
                         <b-tab title="Payoff Chart">
                         </b-tab>
                         <b-tab title="Payoff Table">
-                        </b-tab>
-                        <b-tab title="Mint">
                         </b-tab>
                         <b-tab title="Series Info" :disabled="!optino.series">
                         </b-tab>
                         <b-tab title="All">
                         </b-tab>
 
-                        <div v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 4">
-
+                        <div v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 5">
+                          <b-form-group label-cols="3" label-size="sm" label="Collateral" description="In Base token for calls and Quote token for puts" v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 4">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-collateral">Collateral</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-collateral" type="text" v-model.trim="optino.collateralTokens" readonly placeholder="Enter details above"></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
                           <b-form-group label-cols="3" label-size="sm" label="Current Spot">
                             <b-form inline>
                               <label class="sr-only" for="forminput-currentSpot">Current Spot</label>
@@ -174,16 +174,17 @@ const OptinoExplorer = {
                               </b-input-group>
                             </b-form>
                           </b-form-group>
+                          <b-form-group label-cols="3" label-size="sm" label="Current Cover Payoff">
+                            <b-form inline>
+                              <label class="sr-only" for="forminput-currentCoverPayoff">Current Spot</label>
+                              <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
+                                <b-form-input size="sm" style="width: 200px;" id="forminput-currentCoverPayoff" type="text" v-model.trim="optino.currentCoverPayoff" readonly></b-form-input>
+                              </b-input-group>
+                            </b-form>
+                          </b-form-group>
                         </div>
 
-                        <div v-if="optinoFeedMode == 0 || optinoFeedMode == 4">
-                          <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
-                        </div>
-                        <div v-if="optinoFeedMode == 1 || optinoFeedMode == 4">
-                          <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
-                          </b-table>
-                        </div>
-                        <div v-if="optinoFeedMode == 2 || optinoFeedMode == 4">
+                        <div v-if="optinoFeedMode == 1 || optinoFeedMode == 5">
                           <b-form-group label-cols="3" label-size="sm" label="Fee">
                             <b-form inline>
                               <label class="sr-only" for="forminput-fee">Fee</label>
@@ -236,7 +237,17 @@ const OptinoExplorer = {
                             </b-form>
                           </b-form-group>
                         </div>
-                        <div v-if="optinoFeedMode == 3 || optinoFeedMode == 4">
+
+                        <div v-if="optinoFeedMode == 2 || optinoFeedMode == 5">
+                          <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
+                        </div>
+
+                        <div v-if="optinoFeedMode == 3 || optinoFeedMode == 5">
+                          <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
+                          </b-table>
+                        </div>
+
+                        <div v-if="optinoFeedMode == 4 || optinoFeedMode == 4">
                           Series Info
                         </div>
                       </b-tabs>
@@ -522,191 +533,6 @@ const OptinoExplorer = {
                   </b-form>
                 </b-card-body>
               </b-collapse>
-
-              <!--
-              <b-card-header header-tag="header" class="p-1">
-                <b-button href="#" v-b-toggle.mintOptino variant="outline-info">Mint Optino</b-button>
-              </b-card-header>
-              -->
-              <b-collapse id="mintOptino" class="border-0">
-                <b-card-body>
-                  <b-form>
-                    <b-form-group label-cols="3" label="feed0">
-                      <b-input-group>
-                        <b-form-select v-model="feed0" :options="feedSelectionsSorted0" @input="recalculate('feed0', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="feed1">
-                      <b-input-group>
-                        <b-form-select v-model="feed1" :options="feedSelectionsSorted1" v-on:change="recalculate('feed1', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="type0">
-                      <b-input-group>
-                        <b-form-select v-model.trim="type0" :options="typeOptions" v-on:change="recalculate('type0', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="type1">
-                      <b-input-group>
-                        <b-form-select v-model.trim="type1" :options="typeOptions" v-on:change="recalculate('type1', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="decimals0">
-                      <b-input-group>
-                        <b-form-select v-model.trim="decimals0" :options="decimalsOptions" v-on:change="recalculate('decimals0', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="decimals1">
-                      <b-input-group>
-                        <b-form-select v-model.trim="decimals1" :options="decimalsOptions" v-on:change="recalculate('decimals1', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="inverse0">
-                      <b-form-radio-group id="radio-group-inverse0" v-model="inverse0" @input="recalculate('inverse0', $event)">
-                        <b-form-radio value="0">No</b-form-radio>
-                        <b-form-radio value="1">Yes</b-form-radio>
-                      </b-form-radio-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="inverse1">
-                      <b-form-radio-group id="radio-group-inverse1" v-model="inverse1" @input="recalculate('inverse1', $event)">
-                        <b-form-radio value="0">No</b-form-radio>
-                        <b-form-radio value="1">Yes</b-form-radio>
-                      </b-form-radio-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="Calculated spot">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="calculatedSpot" readonly placeholder="Retrieving latest rate"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="token0">
-                      <b-input-group>
-                        <!-- <b-form-select v-model="token0" :options="tokenOptions" class="mt-3"></b-form-select> -->
-                        <b-form-select v-model="token0" :options="tokenOptionsSorted" @input="recalculate('token0', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="token1">
-                      <b-input-group>
-                        <!-- <b-form-input type="text" v-model.trim="token1"></b-form-input> -->
-                        <b-form-select v-model="token1" :options="tokenOptionsSorted" @input="recalculate('token1', $event)"></b-form-select>
-                      </b-input-group>
-                    </b-form-group>
-
-                    <b-form-group label-cols="3" label="callPut">
-                      <b-form-radio-group id="radio-group-callput" v-model="callPut" @input="recalculate('callPut', $event)">
-                        <b-form-radio value="0">Call</b-form-radio>
-                        <b-form-radio value="1">Put</b-form-radio>
-                      </b-form-radio-group>
-                    </b-form-group>
-                    <!--
-                    <b-form-group label-cols="3" label="expiry" :description="'Selection in your local timezone. In UTC format: ' + formatUTC(expiryInMillis) + '. Time defaults to 08:00:00Z (UTC)'">
-                      <b-input-group>
-                        <flat-pickr v-model="expiryInMillis" :config="dateConfig" class="form-control" @input="recalculate('expiryInMillis', $event)"></flat-pickr>
-                        <template v-slot:append>
-                          <b-form-select v-model.trim="expirySelection" :options="expiryOptions" @input="expirySelected($event)"></b-form-select>
-                        </template>
-                      </b-input-group>
-                    </b-form-group>
-                    -->
-
-                    <b-form-group label-cols="3" label="strike">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="strike" @input="recalculate('strike', $event)"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="cap" description="Cap (bound) for Capped Call. Set to 0 for Vanilla Call" v-if="callPut == 0">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="cap" @input="recalculate('cap', $event)"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="floor" description="Floor (bound) for Floored Put. Set to 0 for Vanilla Put" v-if="callPut != 0">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="floor" @input="recalculate('floor', $event)"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="tokens">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="tokens" @input="recalculate('tokens', $event)"></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <div class="text-center pb-4">
-                      <b-button-group>
-                        <b-button @click="recalculate()" variant="primary" v-b-popover.hover="'Calc Payoff'">Recalc Payoff</b-button>
-                      </b-button-group>
-                      <b-button-group>
-                        <b-button @click="mintOptinos()" variant="primary" v-b-popover.hover="'Mint Optinos'">Mint Optinos</b-button>
-                      </b-button-group>
-                    </div>
-                    <b-form-group label-cols="3" label="collateralTokenNew">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="collateralTokenNew" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="collateralTokens">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="collateralTokens" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="collateralDecimalsNew">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="collateralDecimalsNew" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="collateralFee">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="collateralFee" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="feedDecimals0">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="feedDecimals0" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="currentSpot">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="currentSpot" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="currentPayoff">
-                      <b-input-group>
-                        <b-form-input type="text" v-model.trim="currentPayoff" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-                    <b-form-group label-cols="3" label="payoffs">
-                      <b-input-group>
-                        <b-form-input type="text" :value="payoffs == null ? '' : JSON.stringify(payoffs)" readonly></b-form-input>
-                      </b-input-group>
-                    </b-form-group>
-
-
-                    <!--
-                    <b-card :title="collateralSymbol" v-if="collateralToken != null && collateralToken != ADDRESS0">
-                      <b-card-text>
-                      Current allowance {{ tokenData[collateralToken].allowance.shift(-collateralDecimals).toString() }}
-                      </b-card-text>
-                      <b-form-group label-cols="3" label="collateralAllowance">
-                        <b-input-group>
-                          <b-form-input type="text" v-model.trim="collateralAllowance"></b-form-input>
-                        </b-input-group>
-                      </b-form-group>
-                      <div class="text-center">
-                        <b-button-group>
-                          <b-button @click="setCollateralAllowance()" variant="primary" v-b-popover.hover="'Set Allowance'">Set Allowance</b-button>
-                        </b-button-group>
-                      </div>
-                    </b-card>
-                    -->
-
-                    <br />
-                    <payoff :callPut="callPut" :strike="strike" :bound="bound" :tokens="tokens" :decimals0="baseDecimals" :decimals1="quoteDecimals" :rateDecimals="rateDecimals" :symbol0="baseSymbol" :symbol1="quoteSymbol"></payoff>
-                  </b-form>
-                </b-card-body>
-              </b-collapse>
             </b-card>
           </b-card>
         </b-col>
@@ -791,6 +617,7 @@ const OptinoExplorer = {
 
         currentSpot: null,
         currentPayoff: null,
+        currentCoverPayoff: null,
 
         chartSeries: [],
         spotFrom: "0",
@@ -825,7 +652,8 @@ const OptinoExplorer = {
 
       feedDecimals0: null,
       currentSpot: null,
-      currentPayoff: null,
+      // currentPayoff: null,
+      // currentCoverPayoff: null,
       payoffs: null,
 
       expired: false,
@@ -1555,7 +1383,7 @@ const OptinoExplorer = {
           name += "???";
         }
         name += " ";
-        name += _optino.expiry == null ? '???' : moment(_optino.expiry).utc().format();
+        name += _optino.expiryDate == null || _optino.expiryTime == null ? '???' : moment.utc(_optino.expiryDate + " " + _optino.expiryTime).format();
         name += " ";
         if (_optino.optionType == 'fp') {
           if (_optino.floor != null && _optino.feedDecimals0 != null) {
@@ -1912,6 +1740,7 @@ const OptinoExplorer = {
           this.optino.feedDecimals0 = parseInt(calcPayoff[1][3]);
           this.optino.currentSpot = new BigNumber(calcPayoff[1][4]).shift(-this.optino.feedDecimals0).toString();
           this.optino.currentPayoff = new BigNumber(calcPayoff[1][5]).shift(-this.optino.collateralDecimals).toString();
+          this.optino.currentCoverPayoff = new BigNumber(calcPayoff[1][0]).sub(new BigNumber(calcPayoff[1][5])).shift(-this.optino.collateralDecimals).toString();
           // logInfo("optinoExplorer", "recalculate - optino " + JSON.stringify(this.optino));
 
           var payoffSeries = [];
