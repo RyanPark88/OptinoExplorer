@@ -177,7 +177,7 @@ const OptinoExplorer = {
                         </div>
 
                         <div v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 5">
-                          <b-form-group label-cols="3" label-size="sm" label="Collateral"v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 4">
+                          <b-form-group label-cols="3" label-size="sm" label="Collateral">
                             <b-form inline>
                               <label class="sr-only" for="forminput-collateral">Collateral</label>
                               <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
@@ -444,11 +444,14 @@ const OptinoExplorer = {
                   <template v-slot:cell(cap)="data">
                     {{ data.item.callPut == 0 && parseFloat(data.item.bound) > 0 ? formatValue(data.item.bound, data.item.feedDecimals0) : '' }}
                   </template>
-                  <template v-slot:cell(optino)="data">
+                  <template v-slot:cell(optinoAndCover)="data">
                     <b-link :href="explorer + 'token/' + data.item.optinos[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.optinos[0]) + ' on the block explorer'">{{ tokenSymbol(data.item.optinos[0]) }}</b-link>
-                  </template>
-                  <template v-slot:cell(cover)="data">
+                    <br />
                     <b-link :href="explorer + 'token/' + data.item.optinos[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.optinos[1]) + ' on the block explorer'">{{ tokenSymbol(data.item.optinos[1]) }}</b-link>
+                  </template>
+                  <template v-slot:cell(balance)="data">
+                    <b-link :href="explorer + 'token/' + data.item.optinos[0] + '?a=' + coinbase" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.optinos[0]) + ' on the block explorer'">{{ tokenBalance(data.item.optinos[0]) }}</b-link><br />
+                    <b-link :href="explorer + 'token/' + data.item.optinos[1] + '?a=' + coinbase" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.optinos[1]) + ' on the block explorer'">{{ tokenBalance(data.item.optinos[1]) }}</b-link>
                   </template>
                   <template v-slot:cell(extra)="row">
                     <b-link @click="row.toggleDetails" class="card-link m-0 p-0" v-b-popover.hover="'Show ' + (row.detailsShowing ? 'less' : 'more')"><b-icon-caret-up-fill font-scale="0.9" v-if="row.detailsShowing"></b-icon-caret-up-fill><b-icon-caret-down-fill font-scale="0.9" v-if="!row.detailsShowing"></b-icon-caret-down-fill></b-link>
@@ -585,8 +588,8 @@ const OptinoExplorer = {
         { key: 'floor', label: 'Floor', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'strike', label: 'Strike', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'cap', label: 'Cap', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
-        { key: 'optino', label: 'Optino', sortable: true },
-        { key: 'Cover', label: 'Cover', sortable: true },
+        { key: 'optinoAndCover', label: 'Optino/Cover', sortable: true },
+        { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'decimals', label: 'Decimals', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'totalSupply', label: 'Total Supply', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
@@ -661,6 +664,9 @@ const OptinoExplorer = {
     },
     tokenData() {
       return store.getters['tokens/tokenData'];
+    },
+    optinoData() {
+      return store.getters['optinoFactory/optinoData'];
     },
     typeOptions() {
       return store.getters['optinoFactory/typeOptions'];
@@ -1089,6 +1095,14 @@ const OptinoExplorer = {
       var tokenData = store.getters['optinoFactory/tokenData'];
       if (typeof tokenData[addr] !== "undefined") {
         return tokenData[addr].name;
+      }
+      return address;
+    },
+    tokenBalance(address) {
+      var addr = address.toLowerCase();
+      var tokenData = store.getters['optinoFactory/tokenData'];
+      if (typeof tokenData[addr] !== "undefined") {
+        return tokenData[addr].balance;
       }
       return address;
     },
