@@ -403,7 +403,7 @@ const OptinoExplorer = {
               </b-card>
             </b-modal>
 
-            <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['optionType', 'baseSymbol', 'quoteSymbol', 'strike', 'bound', 'optinoName', 'balance', 'optinoSymbol', 'coverSymbol', 'optinoBalance', 'coverBalance']" show-empty>
+            <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="seriesDataSorted" :fields="seriesDataFields" head-variant="light" :current-page="seriesCurrentPage" :per-page="seriesPerPage" :filter="seriesSearch" @filtered="seriesOnFiltered" :filter-included-fields="['optionType', 'baseSymbol', 'quoteSymbol', 'strike', 'bound', 'spot', 'optinoName', 'optinoBalance', 'coverBalance', 'optinoSymbol', 'coverSymbol', 'optinoBalance', 'coverBalance']" show-empty>
               <template v-slot:cell(baseSymbol)="data">
                 <b-link :href="explorer + 'token/' + data.item.pair[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[0]) + ' on the block explorer'">{{ data.item.baseSymbol }}</b-link>
               </template>
@@ -433,6 +433,9 @@ const OptinoExplorer = {
               </template>
               <template v-slot:cell(cap)="data">
                 {{ data.item.callPut == 0 && parseFloat(data.item.bound) > 0 ? formatValue(data.item.bound, data.item.feedDecimals0) : '' }}
+              </template>
+              <template v-slot:cell(spot)="data">
+                {{ parseFloat(data.item.spot) > 0 ? formatValue(data.item.spot, data.item.feedDecimals0) : null }}
               </template>
               <template v-slot:cell(optinoBalance)="data">
                 <b-link :href="explorer + 'token/' + data.item.optinos[0] + '?a=' + coinbase" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenSymbol(data.item.optinos[0]) + ' ' + tokenName(data.item.optinos[0]) + ' on the block explorer'">{{ tokenBalance(data.item.optinos[0]) }}</b-link><br />
@@ -582,14 +585,15 @@ const OptinoExplorer = {
         { key: 'floor', label: 'Floor', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'strike', label: 'Strike', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'cap', label: 'Cap', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'spot', label: 'Spot', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'optinoBalance', label: 'Optino', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'coverBalance', label: 'Cover', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
-        { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right',
+        // { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right',
           // formatter: (value, key, item) => {
           //   return this.tokenBalance(item.optinos[0]) + ' ' + this.tokenBalance(item.optinos[1]);
           //   // return "a" + value + " " + key + " " + JSON.stringify(item) + "z";
           // }
-        },
+        // },
         // { key: 'decimals', label: 'Decimals', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'totalSupply', label: 'Total Supply', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
