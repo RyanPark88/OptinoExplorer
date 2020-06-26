@@ -411,10 +411,10 @@ const OptinoExplorer = {
                 <b-link :href="explorer + 'token/' + data.item.pair[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenName(data.item.pair[1]) + ' on the block explorer'">{{ data.item.quoteSymbol }}</b-link>
               </template>
               <template v-slot:cell(feeds)="data">
-                <b-link :href="explorer + 'address/' + data.item.feeds[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.feeds[0] + ' on the block explorer'">{{ displayFeed(data.item.feeds[0]) }}</b-link>
+                <b-link :href="explorer + 'address/' + data.item.feeds[0]" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.feeds[0] + ' on the block explorer'">{{ displayFeed(data.item.feeds[0], data.item.feedParameters[0], data.item.feedParameters[2], data.item.feedParameters[4]) }}</b-link>
                 <span v-if="data.item.feeds[1] != ADDRESS0">
                   *<br />
-                  <b-link :href="explorer + 'address/' + data.item.feeds[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.feeds[1] + ' on the block explorer'">{{ displayFeed(data.item.feeds[1]) }}</b-link>
+                  <b-link :href="explorer + 'address/' + data.item.feeds[1]" class="card-link" target="_blank" v-b-popover.hover="'View ' + data.item.feeds[1] + ' on the block explorer'">{{ displayFeed(data.item.feeds[1], data.item.feedParameters[1], data.item.feedParameters[3], data.item.feedParameters[5]) }}</b-link>
                 </span>
               </template>
               <!--
@@ -1034,7 +1034,7 @@ const OptinoExplorer = {
       var result = "";
       if (o.feed0 != null) {
         if (o.inverse0 != 0) {
-          result = result + "Inv("
+          result = result + "Inv(";
         }
         var feed0 = registeredFeedData[o.feed0];
         if (feed0 != null && o.type0 == DEFAULTTYPE && o.decimals0 == DEFAULTDECIMAL) {
@@ -1043,7 +1043,7 @@ const OptinoExplorer = {
           result = result + "Custom";
         }
         if (o.inverse0 != 0) {
-          result = result + ")"
+          result = result + ")";
         }
         if (o.feed1 != null && o.feed1 != ADDRESS0) {
           result = result + "*";
@@ -1185,20 +1185,34 @@ const OptinoExplorer = {
       }
       return null;
     },
-    displayFeed(address) {
-      if (address == ADDRESS0) {
-        return "";
+    displayFeed(address, feedType, decimals, inverse) {
+      // console.log("displayFeed - address: " + address + ", feedType: " + feedType + ", decimals: " + decimals + ", inverse: " + inverse);
+      var result = "";
+      if (address != ADDRESS0) {
+        var addr = address.toLowerCase();
+        var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
+        if (parseInt(inverse) != 0) {
+          result = result + "Inv(";
+        }
+        if (feedType == DEFAULTTYPE && decimals == DEFAULTDECIMAL) {
+          if (typeof registeredFeedData[addr] !== "undefined") {
+            result = result + registeredFeedData[addr].name;
+          } else {
+            var feedData = store.getters['feeds/feedData'];
+            if (typeof feedData[addr] !== "undefined") {
+              result = result + feedData[addr].name;
+            } else {
+              result = result + address.substr(0, 10);
+            }
+          }
+        } else {
+          result = result + "Custom";
+        }
+        if (parseInt(inverse) != 0) {
+          result = result + ")";
+        }
       }
-      var addr = address.toLowerCase();
-      var registeredFeedData = store.getters['optinoFactory/registeredFeedData'];
-      if (typeof registeredFeedData[addr] !== "undefined") {
-        return registeredFeedData[addr].name;
-      }
-      var feedData = store.getters['feeds/feedData'];
-      if (typeof feedData[addr] !== "undefined") {
-        return feedData[addr].name;
-      }
-      return address.substr(0, 10) + '...';
+      return result;
     },
     timeoutCallback() {
       if (store.getters['connection/block'] != null) {

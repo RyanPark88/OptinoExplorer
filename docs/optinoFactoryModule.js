@@ -491,6 +491,7 @@ const optinoFactoryModule = {
               }
 
               if (!(seriesKey in state.seriesData) || state.seriesData[seriesKey].timestamp < timestamp) {
+                var collateralToken = parseInt(callPut) == 0 ? pair[0] : pair[1];
                 commit('updateSeries', { seriesKey: seriesKey, series: { index: seriesIndex, seriesKey: seriesKey, pair: pair, feeds: feeds, feedParameters: feedParameters, feedDecimals0: feedDecimals0,
                   callPut: callPut, expiry: expiry, strike: strike, bound: bound, spot: spot, timestamp: timestamp, optinos: optinos,
                   optionType: optionType,
@@ -498,6 +499,9 @@ const optinoFactoryModule = {
                   optinoSymbol: state.tokenData[optinos[0]].symbol, coverSymbol: state.tokenData[optinos[1]].symbol,
                   optinoName: state.tokenData[optinos[0]].name, coverName: state.tokenData[optinos[1]].name,
                   optinoBalance: state.tokenData[optinos[0]].balance, coverBalance: state.tokenData[optinos[1]].balance,
+                  // collateralToken: collateralToken,
+                  // collateralTokenBalance: state.tokenData[collateralToken].balance,
+                  // collateralTokenAllowance: state.tokenData[collateralToken].allowance,
                  } });
               }
             }
