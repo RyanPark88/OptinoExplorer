@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Optino - Crypto Options</title>
+    <title>Optino Protocol Explorer</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Optino - Crypto Options (c) Bok Consulting Pty Ltd 2020">
@@ -10,7 +10,8 @@
     <link type="text/css" rel="stylesheet" href="css/bootstrap-vue.min.css"/>
     <link type="text/css" rel="stylesheet" href="css/bootstrap-vue-icons.min.css"/>
     <link type="text/css" rel="stylesheet" href="css/flatpickr.css"/>
-    <link href="css/app.css" rel="stylesheet" media="screen" />
+    <link type="text/css" rel="stylesheet" href="css/app.css"/>
+    <!--<link href="css/app.css" rel="stylesheet" media="screen" />-->
     <!-- <link type="text/css" rel="stylesheet" href="css/theme.css" /> -->
     <!-- <script src="js/polyfill.js"></script> -->
     <script src="js/flatpickr.js"></script>
@@ -63,16 +64,16 @@
     <div id="app">
       <b-container fluid>
         <div>
-          <b-navbar type="dark" variant="primary" fixed="top">
-            <b-navbar-brand to="/">
-              <img src="images/153152.png" style="max-width:30px; margin-top: -4px;" alt="Optino Explorer" />
-              Optino Explorer
+          <b-navbar type="dark" variant="primary" fixed="top" active-class="blah">
+            <b-navbar-brand to="/" exact>
+              <img src="images/153152.png" style="max-width:30px; margin-top: -4px;" alt="Optino Protocol Explorer" />
+              Optino Protocol Explorer
             </b-navbar-brand>
             <b-navbar-nav class="ml-auto">
-              <b-nav-item to="/optinoExplorer/all" v-b-popover.hover="'View and create optinos'">Optinos</b-nav-item>
-              <b-nav-item to="/feedsExplorer/all" v-b-popover.hover="'View and set feeds'">Feeds</b-nav-item>
-              <b-nav-item to="/tokensExplorer/all" v-b-popover.hover="'View and add tokens'">Tokens</b-nav-item>
-              <b-nav-item href="https://github.com/bokkypoobah/Optino/wiki" target="_blank" v-b-popover.hover="'View the docs (work in progress)'">Docs</b-nav-item>
+              <b-nav-item to="/optinoExplorer/all" active-class="active" v-b-popover.hover="'View and create optinos'">Optinos</b-nav-item>
+              <b-nav-item to="/feedsExplorer/all" active-class="active" v-b-popover.hover="'View and set feeds'">Feeds</b-nav-item>
+              <b-nav-item to="/tokensExplorer/all" active-class="active" v-b-popover.hover="'View and add tokens'">Tokens</b-nav-item>
+              <!-- <b-nav-item href="https://github.com/bokkypoobah/Optino/wiki" target="_blank" v-b-popover.hover="'View the docs (work in progress)'">Docs</b-nav-item> -->
             </b-navbar-nav>
           </b-navbar>
         </div>

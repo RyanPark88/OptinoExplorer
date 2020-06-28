@@ -10,9 +10,11 @@
     }
 } */
 
+/*
 .router-link-active {
-  color: red;
+  color: red!;
 }
+*/
 
 .navbar-toggler {
     display: block !important;

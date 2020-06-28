@@ -135,12 +135,16 @@ const OptinoExplorer = {
                     </b-tab>
                     <b-tab title="Payoff Table">
                     </b-tab>
-                    <b-tab title="Series Info" :disabled="!optino.series">
+                    <b-tab title="Series" :disabled="!optino.series">
+                    </b-tab>
+                    <b-tab title="Optino" :disabled="!optino.series">
+                    </b-tab>
+                    <b-tab title="Cover" :disabled="!optino.series">
                     </b-tab>
                     <b-tab title="All">
                     </b-tab>
 
-                    <div v-if="optinoFeedMode == 0 || optinoFeedMode == 5">
+                    <div v-if="optinoFeedMode == 0 || optinoFeedMode == 7">
                       <b-form-group label-cols="3" label-size="sm" label="Current Spot">
                         <b-form inline>
                           <label class="sr-only" for="forminput-currentSpot">Current Spot</label>
@@ -165,7 +169,7 @@ const OptinoExplorer = {
                       </b-form-group>
                     </div>
 
-                    <div v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 5">
+                    <div v-if="optinoFeedMode == 0 || optinoFeedMode == 1 || optinoFeedMode == 7">
                       <b-form-group label-cols="3" label-size="sm" label="Collateral">
                         <b-form inline>
                           <label class="sr-only" for="forminput-collateral">Collateral</label>
@@ -192,7 +196,7 @@ const OptinoExplorer = {
                       </b-form-group>
                     </div>
 
-                    <div v-if="optinoFeedMode == 1 || optinoFeedMode == 5">
+                    <div v-if="optinoFeedMode == 1 || optinoFeedMode == 7">
                       <b-form-group label-cols="3" label-size="sm" label="Your Balance">
                         <b-form inline>
                           <label class="sr-only" for="forminput-balance">Your Balance</label>
@@ -228,17 +232,28 @@ const OptinoExplorer = {
                       </b-form-group>
                     </div>
 
-                    <div v-if="optinoFeedMode == 2 || optinoFeedMode == 5">
+                    <div v-if="optinoFeedMode == 2 || optinoFeedMode == 7">
                       <apexchart type="line" :options="chartOptions" :series="optino.chartSeries"></apexchart>
                     </div>
 
-                    <div v-if="optinoFeedMode == 3 || optinoFeedMode == 5">
+                    <div v-if="optinoFeedMode == 3 || optinoFeedMode == 7">
                       <b-table style="font-size: 85%;" small striped outlined selectable select-mode="single" responsive hover :items="optino.payoffTable" :fields="payoffTableFields" :filter="searchFeed0" :filter-included-fields="['name', 'note']" head-variant="light" show-empty>
                       </b-table>
                     </div>
 
-                    <div v-if="optinoFeedMode == 4 || optinoFeedMode == 5">
+                    <div v-if="optinoFeedMode == 4 || optinoFeedMode == 7">
+                      Series TODO: set spot
                       <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(optino.series, null, 4)" rows="1" max-rows="100"></b-form-textarea>
+                    </div>
+
+                    <div v-if="optinoFeedMode == 5 || optinoFeedMode == 7">
+                      Optino TODO: close, settle, send to exchange. Or merge into Series
+                      <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(tokenData[optino.series.optinos[0]], null, 4)" rows="1" max-rows="100"></b-form-textarea>
+                    </div>
+
+                    <div v-if="optinoFeedMode == 6 || optinoFeedMode == 7">
+                      Cover TODO: close, settle, send to exchange. Or merge into Series
+                      <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(tokenData[optino.series.optinos[1]], null, 4)" rows="1" max-rows="100"></b-form-textarea>
                     </div>
                   </b-tabs>
 

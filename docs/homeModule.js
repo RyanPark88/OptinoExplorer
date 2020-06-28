@@ -11,7 +11,7 @@ const Home = {
                 <b-list-group-item to="/tokensExplorer/all">Tokens Explorer</b-list-group-item>
               </b-list-group>
               <b-card-text class="mt-5">
-                Note that you will need a browser with web3 injection, e.g., using the MetaMask addon. In your web3 wallet, switch to the Ropsten testnet.
+                This is still work in progress. You will need a browser with web3 injection, e.g., using the MetaMask addon. In your web3 wallet, switch to the Ropsten testnet.
               </b-card-text>
             </b-card-body>
           </b-card>
