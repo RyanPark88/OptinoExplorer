@@ -112,6 +112,10 @@ const app = new Vue({
   },
   mounted() {
     logInfo("app", "mounted() Called");
+    if (localStorage.getItem('connect')) {
+      var c = localStorage.getItem('connect');
+      store.dispatch('connection/setConnect', c);
+    }
     this.reschedule = true;
     this.timeoutCallback();
   },
@@ -122,6 +126,7 @@ const app = new Vue({
   methods: {
     powerOn() {
       store.dispatch('connection/setConnect', true);
+      localStorage.setItem('connect', true);
       var t = this;
       setTimeout(function() {
         t.statusSidebar = true;

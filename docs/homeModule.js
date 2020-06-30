@@ -10,6 +10,8 @@ const Home = {
           </b-list-group>
           <b-card-text class="mt-5">
             This is still work in progress. You will need a browser with web3 injection, e.g., using the MetaMask addon. In your web3 wallet, switch to the Ropsten testnet.
+            <br />
+            Please click on the power button <b-icon-power variant="primary" shift-v="-1" font-scale="1.5"></b-icon-power> on the top right to connect via MetaMask.
           </b-card-text>
         </b-card-body>
       </b-card>

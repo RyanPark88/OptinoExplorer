@@ -439,7 +439,9 @@ const connectionModule = {
     //   state.count++;
     // },
     setConnect(state, c) {
+      // logInfo("connectionModule", "mutations.setConnect: " + c);
       state.connect = c;
+      // localStorage.setItem('connect', state.connect);
     },
     // setSpinnerVariant(state, sv) {
     //   logInfo("connectionModule", "mutations.setSpinnerVariant: " + sv);
@@ -493,7 +495,7 @@ const connectionModule = {
     //   // commit('incrementCount');
     // },
     setConnect(context, c) {
-      logInfo("connectionModule", "actions.setConnect(" + c + ")");
+      // logInfo("connectionModule", "actions.setConnect(" + c + ")");
       context.commit('setConnect', c);
     },
     // setSpinnerVariant(context, sv) {
