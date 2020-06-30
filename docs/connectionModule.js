@@ -349,12 +349,16 @@ const Connection = {
     },
     timeoutCallback() {
       // logInfo("Connection", "timeoutCallback() - store.getters['tokens/executionQueue']: " + JSON.stringify(store.getters['tokens/executionQueue']));
+      // store.dispatch('connection/mainLoop', {});
+
       var t = this;
-      if (this.count++ % 15 == 0  /* || store.getters['tokens/executionQueue'].length > 0 */) {
-        // if (store.getters['connection/processNow']) {
-        //   store.dispatch('connection/setProcessNow', false);
-        // }
-        t.execWeb3();
+      if (store.getters['connection/connect']) {
+        if (this.count++ % 15 == 0  /* || store.getters['tokens/executionQueue'].length > 0 */) {
+          // if (store.getters['connection/processNow']) {
+          //   store.dispatch('connection/setProcessNow', false);
+          // }
+          t.execWeb3();
+        }
       }
       if (store.getters['connection/block'] != null) {
         this.lastBlockTimeDiff = getTimeDiff(store.getters['connection/block'].timestamp);
@@ -369,6 +373,9 @@ const Connection = {
       } else {
         this.spinnerVariant = "danger";
       }
+      // if (store.getters['spinnerVariant'] != this.spinnerVariant) {
+      //   store.dispatch('connection/setSpinnerVariant', this.spinnerVariant);
+      // }
       if (this.reschedule) {
         setTimeout(function() {
           t.timeoutCallback();
@@ -391,6 +398,11 @@ const Connection = {
 const connectionModule = {
   namespaced: true,
   state: {
+    // count: 0,
+    //
+    connect: false,
+    // spinnerVariant: null,
+
     isOk: false,
     error: null,
     connectionType: null,
@@ -406,6 +418,7 @@ const connectionModule = {
     processNow: false,
   },
   getters: {
+    connect: state => state.connect,
     isOk: state => state.isOk,
     error: state => state.error,
     connectionType: state => state.connectionType,
@@ -421,6 +434,17 @@ const connectionModule = {
     processNow: state => state.processNow,
   },
   mutations: {
+    // incrementCount(state) {
+    //   logInfo("connectionModule", "mutations.incrementCount: " + state.count);
+    //   state.count++;
+    // },
+    setConnect(state, c) {
+      state.connect = c;
+    },
+    // setSpinnerVariant(state, sv) {
+    //   logInfo("connectionModule", "mutations.setSpinnerVariant: " + sv);
+    //   state.spinnerVariant = sv;
+    // },
     setIsOk(state, ok) {
       state.isOk = ok;
     },
@@ -464,6 +488,18 @@ const connectionModule = {
     },
   },
   actions: {
+    // mainLoop({ state, commit, rootState }) {
+    //   logInfo("connectionModule", "actions.mainLoop(" + state.connect + ")");
+    //   // commit('incrementCount');
+    // },
+    setConnect(context, c) {
+      logInfo("connectionModule", "actions.setConnect(" + c + ")");
+      context.commit('setConnect', c);
+    },
+    // setSpinnerVariant(context, sv) {
+    //   logInfo("connectionModule", "actions.setSpinnerVariant(" + sv + ")");
+    //   context.commit('setSpinnerVariant', sv);
+    // },
     setIsOk(context, ok) {
       context.commit('setIsOk', ok);
     },

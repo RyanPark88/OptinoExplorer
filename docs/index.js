@@ -7,6 +7,9 @@ Vue.component('tokens', Tokens);
 Vue.component('payoff', Payoff);
 Vue.component('feeds', Feeds);
 Vue.component('optinoFactory', OptinoFactory);
+// Vue.component('optinoFactory', OptinoFactory, {
+//     name: 'optinoFactory'
+// });
 Vue.component('flat-pickr', VueFlatpickr);
 
 const router = new VueRouter({
@@ -79,9 +82,79 @@ const app = new Vue({
     setLogLevel(1); // 0 = NONE, 1 = INFO (default), 2 = DEBUG
     logDebug("index.js", "app:beforeCreate()");
 		this.$store.commit('initialiseStore');
-	}
-  // components: {
+	},
+  data() {
+    return {
+      // connected: false,
+      count: 0,
+      spinnerVariant: "success",
+      statusSidebar: false,
+      lastBlockTimeDiff: null,
+      reschedule: false,
+
+      name: 'BootstrapVue',
+      show: true,
+    };
+  },
+  computed: {
+    connect() {
+      return store.getters['connection/connect'];
+    },
+    spinnerVariant1() {
+      var sv = store.getters['connection/spinnerVariant'];
+      logInfo("index.js - computed.spinnerVariant", sv);
+      return sv;
+      // return "danger";
+    },
+    moduleName () {
+      return this.$route.name;
+    },
+  },
+  mounted() {
+    logInfo("app", "mounted() Called");
+    this.reschedule = true;
+    this.timeoutCallback();
+  },
+  destroyed() {
+    logInfo("app", "destroyed() Called");
+    this.reschedule = false;
+  },
+  methods: {
+    powerOn() {
+      store.dispatch('connection/setConnect', true);
+      var t = this;
+      setTimeout(function() {
+        t.statusSidebar = true;
+      }, 2500);
+    },
+    timeoutCallback() {
+      // logInfo("app", "timeoutCallback() Called");
+
+      if (store.getters['connection/block'] != null) {
+        this.lastBlockTimeDiff = getTimeDiff(store.getters['connection/block'].timestamp);
+        var secs = parseInt(new Date() / 1000 - store.getters['connection/block'].timestamp);
+        if (secs > 90) {
+          this.spinnerVariant = "danger";
+        } else if (secs > 60) {
+          this.spinnerVariant = "warning";
+        } else {
+          this.spinnerVariant = "success";
+        }
+      } else {
+        this.spinnerVariant = "danger";
+      }
+
+      if (this.reschedule) {
+        var t = this;
+        setTimeout(function() {
+          t.timeoutCallback();
+        }, 1000);
+      }
+    }
+  },
+  components: {
+  // OptinoFactory
   //   "network": Network,
   //   "account": Account,
-  // }
+  },
 }).$mount('#app');

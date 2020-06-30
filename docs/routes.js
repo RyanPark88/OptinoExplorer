@@ -1,18 +1,18 @@
 const routes = [{
     path: '/optinoExplorer/:param',
     component: OptinoExplorer,
-    name: 'OptinoExplorer',
+    name: 'Optinos',
   }, {
     path: '/feedsExplorer/:param',
     component: FeedsExplorer,
-    name: 'FeedsExplorer',
+    name: 'Feeds',
   }, {
     path: '/tokensExplorer/:param',
     component: TokensExplorer,
-    name: 'TokensExplorer',
+    name: 'Tokens',
   }, {
     path: '*',
     component: Home,
-    name: 'home'
+    name: ''
   }
 ];
