@@ -20,7 +20,7 @@ const OptinoExplorer = {
               </div>
               <div class="pr-1">
                 <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('new', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button>
-                <b-button size="sm" class="m-0 p-0" variant="link" v-b-popover.hover="'Show status'" v-b-toggle.sidebar-status><b-icon-grip-horizontal shift-v="-2" font-scale="1.4"></b-icon-grip-horizontal> <b-spinner class="float-right mt-1" :variant="spinnerVariant" style="animation: spinner-grow 3.75s linear infinite;" small type="grow" label="Spinning" /></b-button>
+                <!-- <b-button size="sm" class="m-0 p-0" variant="link" v-b-popover.hover="'Show status'" v-b-toggle.sidebar-status><b-icon-grip-horizontal shift-v="-2" font-scale="1.4"></b-icon-grip-horizontal> <b-spinner class="float-right mt-1" :variant="spinnerVariant" style="animation: spinner-grow 3.75s linear infinite;" small type="grow" label="Spinning" /></b-button> -->
               </div>
             </div>
 
@@ -479,6 +479,7 @@ const OptinoExplorer = {
           </b-card-body>
         </b-card>
       </b-card>
+      <!--
       <div>
         <b-sidebar id="sidebar-status" title="Status" width="400px" right shadow>
           <b-card no-body class="m-1 p-1">
@@ -494,6 +495,7 @@ const OptinoExplorer = {
           </b-card>
         </b-sidebar>
       </div>
+      -->
     </div>
   `,
   data: function () {
