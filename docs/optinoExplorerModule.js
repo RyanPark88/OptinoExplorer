@@ -450,7 +450,31 @@ const OptinoExplorer = {
                 {{ data.item.callPut == 0 && parseFloat(data.item.bound) > 0 ? formatValue(data.item.bound, data.item.feedDecimals0) : '' }}
               </template>
               <template v-slot:cell(spot)="data">
-                {{ parseFloat(data.item.spot) > 0 ? formatValue(data.item.spot, data.item.feedDecimals0) : null }}
+                <div v-if="data.item.spot != 0">
+                  {{ formatValue(data.item.spot, data.item.feedDecimals0) }}
+                </div>
+                <div v-else>
+                  <em>{{ formatValue(data.item.optinoPricingInfo[0], data.item.feedDecimals0) }}</em>
+                </div>
+              </template>
+              <template v-slot:cell(optinoPayoff)="data">
+                <div v-if="data.item.spot != 0">
+                  {{ formatValue(data.item.optinoPricingInfo[3], data.item.collateralDecimals) }}
+                </div>
+                <div v-else>
+                  <em>{{ formatValue(data.item.optinoPricingInfo[1], data.item.collateralDecimals) }}</em>
+                </div>
+              </template>
+              <template v-slot:cell(coverPayoff)="data">
+                <div v-if="data.item.spot != 0">
+                  {{ formatValue(data.item.coverPricingInfo[3], data.item.collateralDecimals) }}
+                </div>
+                <div v-else>
+                  <em>{{ formatValue(data.item.coverPricingInfo[1], data.item.collateralDecimals) }}</em>
+                </div>
+              </template>
+              <template v-slot:cell(collateral)="data">
+                {{ formatValue(data.item.coverPricingInfo[4], data.item.collateralDecimals) }}
               </template>
               <template v-slot:cell(optinoBalance)="data">
                 <b-link :href="explorer + 'token/' + data.item.optinos[0] + '?a=' + coinbase" class="card-link" target="_blank" v-b-popover.hover="'View ' + tokenSymbol(data.item.optinos[0]) + ' ' + tokenName(data.item.optinos[0]) + ' on the block explorer'">{{ tokenBalance(data.item.optinos[0]) }}</b-link><br />
@@ -603,8 +627,11 @@ const OptinoExplorer = {
         { key: 'strike', label: 'Strike', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'cap', label: 'Cap', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         { key: 'spot', label: 'Spot', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
-        { key: 'optinoBalance', label: 'Optino', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
-        { key: 'coverBalance', label: 'Cover', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'optinoPayoff', label: 'Optino Payoff', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'coverPayoff', label: 'Cover Payoff', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'collateral', label: 'Collateral', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'optinoBalance', label: 'Optino Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
+        { key: 'coverBalance', label: 'Cover Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right' },
         // { key: 'balance', label: 'Balance', sortable: true, thClass: 'text-right', tdClass: 'text-right',
           // formatter: (value, key, item) => {
           //   return this.tokenBalance(item.optinos[0]) + ' ' + this.tokenBalance(item.optinos[1]);

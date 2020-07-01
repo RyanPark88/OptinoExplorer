@@ -67,7 +67,7 @@
           <!-- <b-navbar type="outline-primary" fixed="top" active-class="blah"> -->
           <b-navbar variant="light" fixed="top">
             <b-navbar-brand to="/" variant="primary">
-              <img src="images/153152_black_original.png" style="max-width:30px; margin-top: -4px;" alt="Optino Protocol Explorer" />
+              <img src="images/153152_black_original.png" style="max-width: 30px; margin-top: -4px;" alt="Optino Protocol Explorer" />
               Optino Protocol Explorer <!--<span v-if="moduleName != null && moduleName.length > 0">- {{ moduleName }}</span>-->
             </b-navbar-brand>
             <b-navbar-nav class="ml-auto">
@@ -75,15 +75,9 @@
               <b-nav-item size="sm" to="/feedsExplorer/all" active-class="active" v-b-popover.hover="'View and set feeds'" :disabled="!connect">Feeds</b-nav-item>
               <b-nav-item size="sm" to="/tokensExplorer/all" active-class="active" v-b-popover.hover="'View and add tokens'" :disabled="!connect">Tokens</b-nav-item>
               <!-- <b-nav-item href="https://github.com/bokkypoobah/Optino/wiki" target="_blank" v-b-popover.hover="'View the docs (work in progress)'">Docs</b-nav-item> -->
-              <!-- <b-button size="sm" class="m-0 p-0" variant="link" v-b-popover.hover="'Show status'" v-b-toggle.sidebar-status><b-icon-grip-horizontal shift-v="-2" font-scale="1.4"></b-icon-grip-horizontal> <b-spinner class="float-right mt-1" :variant="spinnerVariant" style="animation: spinner-grow 3.75s linear infinite;" small type="grow" label="Spinning" /></b-button> -->
               <b-nav-form>
-                <!-- <b-button size="sm" class="m-0 p-0" href="#" @click="recalculate('new', $event); $bvModal.show('bv-modal-optino')" variant="link" v-b-popover.hover="'Mint Optino'"><b-icon-pencil-square shift-v="-2" font-scale="1.4"></b-icon-pencil-square></b-button> -->
-                <!-- <b-button size="sm" variant="link" class="ml-4" v-b-popover.hover="'Power up this Explorer'" v-b-toggle.sidebar-status v-if="!connect"><b-icon-power shift-v="-1" font-scale="1.5"></b-icon-power></b-button> -->
                 <b-button size="sm" variant="link" class="ml-4" v-b-popover.hover="'Power up this app'" @click="powerOn();" v-if="!connect"><b-icon-power shift-v="-1" font-scale="1.5"></b-icon-power></b-button>
-
                 <b-button size="sm" variant="link" v-b-popover.hover="'Show status'" v-b-toggle.sidebar-status v-if="connect"><b-icon-layout-sidebar-reverse class="ml-4 mr-2" shift-v="-1" font-scale="1.3"></b-icon-layout-sidebar-reverse><b-spinner class="m-0" :variant="spinnerVariant" v-if="connect" style="animation: spinner-grow 3.75s linear infinite;" small type="grow" label="Spinning"></b-spinner></b-button>
-
-                <!-- <b-button size="sm" class="m-0 ml-3 p-0" variant="outline-warning" v-b-popover.hover="'Show status'" v-b-toggle.sidebar-status v-if="connected"><b-icon-cloud-fill shift-v="-2" font-scale="1.4"></b-icon-cloud-fill> Status</b-button> -->
                 <b-sidebar id="sidebar-status" v-model="statusSidebar" title="Status" width="400px" right shadow>
                   <b-card no-body class="m-2 p-1">
                     <b-card-body class="m-1 p-0">

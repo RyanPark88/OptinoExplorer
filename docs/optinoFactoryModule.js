@@ -302,7 +302,7 @@ const optinoFactoryModule = {
         currentToken.allowance != token.allowance ||
         currentToken.source != token.source ||
         currentToken.type != token.type) {
-        Vue.set(state.tokenData, token.address.toLowerCase(), {address: token.address, symbol: token.symbol, name: token.name, decimals: token.decimals, totalSupply: token.totalSupply, balance: token.balance, allowance: token.allowance, source: token.source, type: token.type });
+        Vue.set(state.tokenData, token.address.toLowerCase(), {address: token.address, symbol: token.symbol, name: token.name, decimals: token.decimals, totalSupply: token.totalSupply, balance: token.balance, allowance: token.allowance, source: token.source, type: token.type, pricingInfo: token.pricingInfo });
         // logInfo("optinoFactoryModule", "mutations.updateToken - state.tokenData: " +  JSON.stringify(state.tokenData));
         // localStorage.setItem('tokenData', JSON.stringify(state.tokenData));
       // } else {
@@ -465,7 +465,14 @@ const optinoFactoryModule = {
                   var balance = tokenInfo[2].shift(-decimals).toString();
                   var allowance = tokenInfo[3].shift(-decimals).toString();
                   var tokenType = address == pair[0] || address == pair[1] ? "token" : "optino";
-                  commit('updateToken', { address: address, symbol: symbol, name: name, decimals: decimals, totalSupply: totalSupply, balance: balance, allowance: allowance, source: "factory", type: tokenType } );
+                  var pricingInfo = null;
+                  if (tokenType == "optino") {
+                    var optino = web3.eth.contract(OPTINOABI).at(address);
+                    // function getPricingInfo() public view returns (uint currentSpot, uint currentPayoff, uint spot, uint payoff, uint collateral)
+                    var _pricingInfo = promisify(cb => optino.getPricingInfo(cb));
+                    pricingInfo = await _pricingInfo;
+                  }
+                  commit('updateToken', { address: address, symbol: symbol, name: name, decimals: decimals, totalSupply: totalSupply, balance: balance, allowance: allowance, source: "factory", type: tokenType, pricingInfo: pricingInfo } );
                 }
               }
               // [pair[0], pair[1], optinos[0], optinos[1]].forEach(async function(address) {
@@ -499,7 +506,9 @@ const optinoFactoryModule = {
                   optinoSymbol: state.tokenData[optinos[0]].symbol, coverSymbol: state.tokenData[optinos[1]].symbol,
                   optinoName: state.tokenData[optinos[0]].name, coverName: state.tokenData[optinos[1]].name,
                   optinoBalance: state.tokenData[optinos[0]].balance, coverBalance: state.tokenData[optinos[1]].balance,
-                  // collateralToken: collateralToken,
+                  optinoPricingInfo: state.tokenData[optinos[0]].pricingInfo, coverPricingInfo: state.tokenData[optinos[1]].pricingInfo,
+                  collateralToken: collateralToken,
+                  collateralDecimals: state.tokenData[collateralToken].decimals,
                   // collateralTokenBalance: state.tokenData[collateralToken].balance,
                   // collateralTokenAllowance: state.tokenData[collateralToken].allowance,
                  } });
