@@ -10,28 +10,50 @@ const Docs = {
           -->
           <b-tab title="Formulae" active>
             <b-card-text>
-              <h5 class="mb-3">Payoff Formulae</h5>
-              <h6>Vanilla Call Payoff</h6>
+              <h5 class="mb-3">Table Of Contents</h5>
+              <ul>
+                <li>Option Payoff Formulae
+                  <ul>
+                    <li>Vanilla Call Option Payoff</li>
+                    <li>Capped Call Option Payoff</li>
+                    <li>Vanilla Put Option Payoff</li>
+                    <li>Floored Put Option Payoff</li>
+                  </ul>
+                </li>
+                <li>Algorithms
+                  <ul>
+                    <li>Decimal Places</li>
+                    <li>Call Payoff And Collateral</li>
+                    <li>Put Payoff And Collateral</li>
+                  </ul>
+                </li>
+                <li>Ethereum Solidity Smart Contract Implementation</li>
+              </ul>
+              <hr />
+              <br />
+
+              <h5 class="mb-3">Option Payoff Formulae</h5>
+              <h6>Vanilla Call Option Payoff</h6>
               <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
 vanillaCallPayoff = max(spot - strike, 0)</pre>
 
-              <h6>Capped Call Payoff</h6>
+              <h6>Capped Call Option Payoff</h6>
               <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
 cappedCallPayoff = max(min(spot, cap) - strike, 0)
                  = max(spot - strike, 0) - max(spot - cap, 0)</pre>
 
-              <h6>Vanilla Put Payoff</h6>
+              <h6>Vanilla Put Option Payoff</h6>
               <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
 vanillaPutPayoff = max(strike - spot, 0)</pre>
 
-              <h6>Floored Put Payoff</h6>
+              <h6>Floored Put Option Payoff</h6>
               <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
 flooredPutPayoff = max(strike - max(spot, floor), 0)
                  = max(strike - spot, 0) - max(floor - spot, 0)</pre>
 
               <hr />
               <br />
-              
+
               <h5 class="mb-3">Algorithms</h5>
               <h6>Decimal Places</h6>
               <p>Four types of decimal places are involved in these calculations:</p>
@@ -67,25 +89,111 @@ if (bound <= strike) {
 } else {
   callCollateral = [(bound - strike) / bound] x [tokens / (10^optinoDecimals)] x (10^decimals0)
 }</pre>
-            <br />
+              <br />
 
-            <h6>Put Payoff And Collateral</h6>
-            <p>Requirements:</p>
-            <ul>
-              <li><code>strike</code> must be > 0</li>
-              <li><code>bound</code>, or <code>floor</code> must be 0 for vanilla puts or < <code>strike</code> for floored puts</li>
-              <li>Collateral is in the *token1* (or *quoteToken*)</li>
-            </ul>
-            <p>Put Payoff:</p>
-            <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
+              <h6>Put Payoff And Collateral</h6>
+              <p>Requirements:</p>
+              <ul>
+                <li><code>strike</code> must be > 0</li>
+                <li><code>bound</code>, or <code>floor</code> must be 0 for vanilla puts or < <code>strike</code> for floored puts</li>
+                <li>Collateral is in the *token1* (or *quoteToken*)</li>
+              </ul>
+              <p>Put Payoff:</p>
+              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
 if (bound == 0 || (bound > 0 && spot >= bound)) {
   putPayoff = [(strike - spot) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
 } else {
   putPayoff = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
 }</pre>
-            <p>Put Collateral:</p>
-            <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
+              <p>Put Collateral:</p>
+              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
 putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)</pre>
+
+              <hr />
+              <br />
+
+              <h5>Ethereum Solidity Smart Contract Implementation</h5>
+              <p>Info:</p>
+              <ul>
+                <li>Using 256 bit unsigned integers</li>
+                <li>Divisions are performed last to reduce loss of precision</li>
+                <li><code>computeCollateral(...)</code> calculates the <code>collateral</code> as the maximum payoff</li>
+                <li><code>computePayoff(...)</code> calculates the <code>payoff</code> depending on the spot price, after expiry</li>
+                <li>Optino and Cover tokens can <code>close(...)</code> off against each other to release calculated <code>collateral</code> in proportion to the tokens closed/netted</li>
+                <li>Optino token holders execute <code>settle()</code> after expiry to receive the calculated <code>payoff</code> in proportion to the token holdings</li>
+                <li>Cover token holders execute <code>settle()</code> after expiry to receive the calculated <code>(collateral - payoff)</code> in proportion to the token holdings</li>
+              </ul>
+              <p>Solidity Code from factory <b-link :href="explorer + 'address/' + address + '#code'" class="card-link" target="_blank">{{ address }}</b-link> and template <b-link :href="explorer + 'address/' + optinoTokenTemplate + '#code'" class="card-link" target="_blank">{{ optinoTokenTemplate }}</b-link>:</p>
+
+              <!-- <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;"> -->
+              <pre><code class="solidity mx-4 my-2 p2">
+/// @notice Vanilla, capped call and floored put options formulae for 100% collateralisation
+// ----------------------------------------------------------------------------
+// vanillaCallPayoff = max(spot - strike, 0)
+// cappedCallPayoff  = max(min(spot, cap) - strike, 0)
+//                   = max(spot - strike, 0) - max(spot - cap, 0)
+// vanillaPutPayoff  = max(strike - spot, 0)
+// flooredPutPayoff  = max(strike - max(spot, floor), 0)
+//                   = max(strike - spot, 0) - max(floor - spot, 0)
+// ----------------------------------------------------------------------------
+contract OptinoFormulae is DataType {
+    using SafeMath for uint;
+
+    function shiftRightThenLeft(uint amount, uint8 right, uint8 left) internal pure returns (uint result) {
+        if (right == left) {
+            return amount;
+        } else if (right > left) {
+            return amount.mul(10 ** uint(right - left));
+        } else {
+            return amount.div(10 ** uint(left - right));
+        }
+    }
+
+    function computeCollateral(uint[5] memory _seriesData, uint tokens, uint8[4] memory decimalsData) internal pure returns (uint collateral) {
+        (uint callPut, uint strike, uint bound) = (_seriesData[uint(SeriesDataField.CallPut)], _seriesData[uint(SeriesDataField.Strike)], _seriesData[uint(SeriesDataField.Bound)]);
+        (uint8 decimals, uint8 decimals0, uint8 decimals1, uint8 rateDecimals) = (decimalsData[0], decimalsData[1], decimalsData[2], decimalsData[3]);
+        require(strike > 0, "strike must be > 0");
+        if (callPut == 0) {
+            require(bound == 0 || bound > strike, "Call bound must = 0 or > strike");
+            if (bound <= strike) {
+                return shiftRightThenLeft(tokens, decimals0, decimals);
+            } else {
+                return shiftRightThenLeft(bound.sub(strike).mul(tokens).div(bound), decimals0, decimals);
+            }
+        } else {
+            require(bound < strike, "Put bound must = 0 or < strike");
+            return shiftRightThenLeft(strike.sub(bound).mul(tokens), decimals1, decimals).div(10 ** uint(rateDecimals));
+        }
+    }
+
+    function computePayoff(uint[5] memory _seriesData, uint spot, uint tokens, uint8[4] memory decimalsData) internal pure returns (uint payoff) {
+        (uint callPut, uint strike, uint bound) = (_seriesData[uint(SeriesDataField.CallPut)], _seriesData[uint(SeriesDataField.Strike)], _seriesData[uint(SeriesDataField.Bound)]);
+        return _computePayoff(callPut, strike, bound, spot, tokens, decimalsData);
+    }
+    function _computePayoff(uint callPut, uint strike, uint bound, uint spot, uint tokens, uint8[4] memory decimalsData) internal pure returns (uint payoff) {
+        (uint8 decimals, uint8 decimals0, uint8 decimals1, uint8 rateDecimals) = (decimalsData[0], decimalsData[1], decimalsData[2], decimalsData[3]);
+        require(strike > 0, "strike must be > 0");
+        if (callPut == 0) {
+            require(bound == 0 || bound > strike, "Call bound must = 0 or > strike");
+            if (spot > 0 && spot > strike) {
+                if (bound > strike && spot > bound) {
+                    return shiftRightThenLeft(bound.sub(strike).mul(tokens), decimals0, decimals).div(spot);
+                } else {
+                    return shiftRightThenLeft(spot.sub(strike).mul(tokens), decimals0, decimals).div(spot);
+                }
+            }
+        } else {
+            require(bound < strike, "Put bound must = 0 or < strike");
+            if (spot < strike) {
+                 if (bound == 0 || (bound > 0 && spot >= bound)) {
+                     return shiftRightThenLeft(strike.sub(spot).mul(tokens), decimals1, decimals + rateDecimals);
+                 } else {
+                     return shiftRightThenLeft(strike.sub(bound).mul(tokens), decimals1, decimals + rateDecimals);
+                 }
+            }
+        }
+    }
+}</code></pre>
             </b-card-text>
           </b-tab>
           <!--
@@ -144,8 +252,14 @@ putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDec
     }
   },
   computed: {
-    connect() {
-      return store.getters['connection/connect'];
+    explorer() {
+      return store.getters['connection/explorer'];
+    },
+    address() {
+      return store.getters['optinoFactory/address'];
+    },
+    optinoTokenTemplate() {
+      return store.getters['optinoFactory/optinoTokenTemplate'];
     },
   },
 };

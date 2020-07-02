@@ -61,6 +61,22 @@
 * https://github.com/vuejs/vuex-router-sync
 * Using earlier copy-pasted version
 
+### Highlight.js
+https://highlightjs.org/
+
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css"> renamed to highlight.min.css
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+
+https://github.com/highlightjs/highlightjs-solidity
+https://raw.githubusercontent.com/highlightjs/highlightjs-solidity/master/solidity.js
+
+<script type="text/javascript" src="/path/to/highlight.pack.js"></script>
+<script type="text/javascript" src="/path/to/highlightjs-solidity/solidity.js"></script>
+<script type="text/javascript">
+    hljs.registerLanguage('solidity', window.hljsDefineSolidity);
+    hljs.initHighlightingOnLoad();
+</script>
 
 
 bignumber.js 4.0.2

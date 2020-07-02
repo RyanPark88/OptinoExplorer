@@ -12,6 +12,9 @@ Vue.component('optinoFactory', OptinoFactory);
 // });
 Vue.component('flat-pickr', VueFlatpickr);
 
+hljs.registerLanguage('solidity', window.hljsDefineSolidity);
+hljs.initHighlightingOnLoad();
+
 const router = new VueRouter({
   routes,
 });
