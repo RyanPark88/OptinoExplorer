@@ -498,10 +498,21 @@ const optinoFactoryModule = {
               }
 
               if (!(seriesKey in state.seriesData) || state.seriesData[seriesKey].timestamp < timestamp) {
+                var optinoState;
+                if (parseInt(expiry) <= parseInt(new Date().getTime()/1000)) {
+                  if (spot == 0) {
+                    optinoState = "expired";
+                  } else {
+                    optinoState = "exercised";
+                  }
+                } else {
+                  optinoState = "open";
+                }
                 var collateralToken = parseInt(callPut) == 0 ? pair[0] : pair[1];
                 commit('updateSeries', { seriesKey: seriesKey, series: { index: seriesIndex, seriesKey: seriesKey, pair: pair, feeds: feeds, feedParameters: feedParameters, feedDecimals0: feedDecimals0,
                   callPut: callPut, expiry: expiry, strike: strike, bound: bound, spot: spot, timestamp: timestamp, optinos: optinos,
                   optionType: optionType,
+                  optinoState: optinoState,
                   baseSymbol: state.tokenData[pair[0]].symbol, quoteSymbol: state.tokenData[pair[1]].symbol,
                   optinoSymbol: state.tokenData[optinos[0]].symbol, coverSymbol: state.tokenData[optinos[1]].symbol,
                   optinoName: state.tokenData[optinos[0]].name, coverName: state.tokenData[optinos[1]].name,

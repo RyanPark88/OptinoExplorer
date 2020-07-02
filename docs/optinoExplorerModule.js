@@ -26,7 +26,7 @@ const OptinoExplorer = {
 
             <b-modal v-model="optino.show" id="bv-modal-optino" size="lg" hide-footer title-class="m-0 p-0" header-class="m-1 p-1" body-class="m-1 p-1">
               <template v-slot:modal-title>
-                <h6>{{ seriesName(optino, '') }}</h6>
+                <h6><span v-if="optino.series != null">Series #{{ optino.series.index }} </span>{{ seriesName(optino, '') }}</h6>
               </template>
               <b-card no-body bg-variant="light" class="m-1 p-1">
                 <b-card-body class="m-1 p-1">
@@ -242,6 +242,11 @@ const OptinoExplorer = {
                     </div>
 
                     <div v-if="optinoFeedMode == 4 || optinoFeedMode == 7">
+                      <b-form-group label-cols="3" label-size="sm" label="Set series spot">
+                        <b-form inline>
+                          <b-button size="sm" class="ml-1" @click="setSeriesSpot(optino.series)" variant="primary" v-b-popover.hover="'Set Series Spot'" :disabled="optino.series.optinoState!='expired'">Set Series Spot</b-button>
+                        </b-form>
+                      </b-form-group>
                       Series TODO: set spot
                       <b-form-textarea size="sm" wrap="soft" :value="JSON.stringify(optino.series, null, 4)" rows="1" max-rows="100"></b-form-textarea>
                     </div>
@@ -1672,6 +1677,43 @@ const OptinoExplorer = {
                 store.dispatch('connection/addTx', tx);
               } else {
                 logInfo("optinoExplorer", "mintOptinos() factory.mintOptino() error: ");
+                console.table(error);
+                store.dispatch('connection/setTxError', error.message);
+              }
+            });
+
+            event.preventDefault();
+          }
+        })
+        .catch(err => {
+          // An error occurred
+        });
+    },
+    setSeriesSpot(series) {
+      logInfo("optinoExplorer", "setSeriesSpot(" + series.seriesKey + ")?");
+      this.$bvModal.msgBoxConfirm('Set spot for series ' + series.index + '?', {
+          title: 'Please Confirm',
+          size: 'sm',
+          buttonSize: 'sm',
+          okVariant: 'danger',
+          okTitle: 'Yes',
+          cancelTitle: 'No',
+          footerClass: 'p-2',
+          hideHeaderClose: false,
+          centered: true
+        })
+        .then(value1 => {
+          if (value1) {
+            logInfo("optinoExplorer", "setSeriesSpot(" + series.seriesKey + ")");
+            var factoryAddress = store.getters['optinoFactory/address']
+            var factory = web3.eth.contract(OPTINOFACTORYABI).at(factoryAddress);
+
+            factory.setSeriesSpot(series.seriesKey, { from: store.getters['connection/coinbase'] }, function(error, tx) {
+              if (!error) {
+                logInfo("optinoExplorer", "setSeriesSpot() factory.setSeriesSpot() tx: " + tx);
+                store.dispatch('connection/addTx', tx);
+              } else {
+                logInfo("optinoExplorer", "setSeriesSpot() factory.setSeriesSpot() error: ");
                 console.table(error);
                 store.dispatch('connection/setTxError', error.message);
               }
