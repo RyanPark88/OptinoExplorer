@@ -37,21 +37,17 @@ const Docs = {
                 <h5 class="mb-3">Option Payoff Formulae</h5>
                 <p>The following traditional option pricing formulae are used to build the algorithms and the Ethereum Solidity implementation below.</p>
                 <h6>Vanilla Call Option Payoff</h6>
-                <pre><code class="solidity m-3 p-1">
-vanillaCallPayoff = max(spot - strike, 0)</code></pre>
+                <pre><code class="solidity m-2 p-2">vanillaCallPayoff = max(spot - strike, 0)</code></pre>
 
                 <h6>Capped Call Option Payoff</h6>
-                <pre><code class="solidity m-3 p-1">
-cappedCallPayoff = max(min(spot, cap) - strike, 0)
+                <pre><code class="solidity m-2 p-2">cappedCallPayoff = max(min(spot, cap) - strike, 0)
                  = max(spot - strike, 0) - max(spot - cap, 0)</code></pre>
 
                 <h6>Vanilla Put Option Payoff</h6>
-                <pre><code class="solidity m-3 p-1">
-vanillaPutPayoff = max(strike - spot, 0)</code></pre>
+                <pre><code class="solidity m-2 p-2">vanillaPutPayoff = max(strike - spot, 0)</code></pre>
 
                 <h6>Floored Put Option Payoff</h6>
-                <pre><code class="solidity m-3 p-1">
-flooredPutPayoff = max(strike - max(spot, floor), 0)
+                <pre><code class="solidity m-2 p-2">flooredPutPayoff = max(strike - max(spot, floor), 0)
                  = max(strike - spot, 0) - max(floor - spot, 0)</code></pre>
 
                 <hr />
@@ -77,8 +73,7 @@ flooredPutPayoff = max(strike - max(spot, floor), 0)
                   <li>Collateral is in the *token0* (or *baseToken*)</li>
                 </ul>
                 <p>Call Payoff:</p>
-                <pre><code class="solidity m-3 p-1">
-callPayoff = 0
+                <pre><code class="solidity m-2 p-2">callPayoff = 0
 if (spot > 0 && spot > strike) {
   if (bound > strike && spot > bound) {
     callPayoff = [(bound - strike) / spot] x [tokens / (10^optinoDecimals)] x (10^decimals0)
@@ -87,8 +82,7 @@ if (spot > 0 && spot > strike) {
   }
 }</code></pre>
                 <p>Call Collateral:</p>
-                <pre><code class="solidity m-3 p-1">
-if (bound <= strike) {
+                <pre><code class="solidity m-2 p-2">if (bound <= strike) {
   callCollateral = [tokens / (10^optinoDecimals)] x (10^decimals0)
 } else {
   callCollateral = [(bound - strike) / bound] x [tokens / (10^optinoDecimals)] x (10^decimals0)
@@ -103,8 +97,7 @@ if (bound <= strike) {
                   <li>Collateral is in the *token1* (or *quoteToken*)</li>
                 </ul>
                 <p>Put Payoff:</p>
-                <pre><code class="solidity m-3 p-1">
-putPayoff = 0
+                <pre><code class="solidity m-2 p-2">putPayoff = 0
 if (spot < strike) {
   if (bound == 0 || (bound > 0 && spot >= bound)) {
     putPayoff = [(strike - spot) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
@@ -113,8 +106,7 @@ if (spot < strike) {
   }
 }</code></pre>
                 <p>Put Collateral:</p>
-                <pre><code class="solidity m-3 p-1">
-putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)</code></pre>
+                <pre><code class="solidity m-2 p-2">putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)</code></pre>
 
                 <hr />
 
@@ -133,9 +125,7 @@ putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDec
                 </ul>
                 <p>Solidity Code from factory <b-link :href="explorer + 'address/' + address + '#code'" class="card-link" target="_blank">{{ address }}</b-link> and template <b-link :href="explorer + 'address/' + optinoTokenTemplate + '#code'" class="card-link" target="_blank">{{ optinoTokenTemplate }}</b-link>:</p>
 
-                <!-- <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;"> -->
-                <pre><code class="solidity m-3 p-1">
-/// @notice Vanilla, capped call and floored put options formulae for 100% collateralisation
+                <pre><code class="solidity m-2 p-2">/// @notice Vanilla, capped call and floored put options formulae for 100% collateralisation
 // ----------------------------------------------------------------------------
 // vanillaCallPayoff = max(spot - strike, 0)
 // cappedCallPayoff  = max(min(spot, cap) - strike, 0)
