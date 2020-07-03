@@ -12,11 +12,12 @@ Vue.component('optinoFactory', OptinoFactory);
 // });
 Vue.component('flat-pickr', VueFlatpickr);
 
-hljs.registerLanguage('solidity', window.hljsDefineSolidity);
-hljs.initHighlightingOnLoad();
+// hljs.registerLanguage('solidity', window.hljsDefineSolidity);
+// hljs.initHighlightingOnLoad();
 
 const router = new VueRouter({
-  routes,
+  // mode: 'history', // https://stackoverflow.com/questions/45201014/how-to-handle-anchors-bookmarks-with-vue-router
+  routes: routes,
 });
 
 const storeVersion = 1;

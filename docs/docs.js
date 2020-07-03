@@ -3,16 +3,16 @@ const Docs = {
     <div class="mt-5 pt-3">
       <b-card no-body header="Documentation" class="border-0" header-class="p-1">
         <b-tabs pills card vertical end>
-          <!--
-          <b-tab title="Start">
-            <b-card-text>Start</b-card-text>
+          <b-tab title="Intro">
+            <b-card-text>
+              Intro
+            </b-card-text>
           </b-tab>
-          -->
           <b-tab title="Formulae" active>
             <b-card-text>
               <h5 class="mb-3">Table Of Contents</h5>
               <ul>
-                <li>Option Payoff Formulae
+                <li><b-link @click="scrollMeTo('optionpayoffformulae')">Option Payoff Formulae</b-link>
                   <ul>
                     <li>Vanilla Call Option Payoff</li>
                     <li>Capped Call Option Payoff</li>
@@ -20,40 +20,43 @@ const Docs = {
                     <li>Floored Put Option Payoff</li>
                   </ul>
                 </li>
-                <li>Algorithms
+                <li><b-link @click="scrollMeTo('algorithms')">Algorithms</b-link>
                   <ul>
                     <li>Decimal Places</li>
                     <li>Call Payoff And Collateral</li>
                     <li>Put Payoff And Collateral</li>
                   </ul>
                 </li>
-                <li>Ethereum Solidity Smart Contract Implementation</li>
+                <li><b-link @click="scrollMeTo('solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
               </ul>
               <hr />
-              <br />
 
+              <a ref="optionpayoffformulae"></a>
+              <br />
               <h5 class="mb-3">Option Payoff Formulae</h5>
+              <p>The following traditional option pricing formulae are used to build the algorithms and the Ethereum Solidity implementation below.</p>
               <h6>Vanilla Call Option Payoff</h6>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
-vanillaCallPayoff = max(spot - strike, 0)</pre>
+              <pre><code class="solidity m-3 p-1">
+vanillaCallPayoff = max(spot - strike, 0)</code></pre>
 
               <h6>Capped Call Option Payoff</h6>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
+              <pre><code class="solidity m-3 p-1">
 cappedCallPayoff = max(min(spot, cap) - strike, 0)
-                 = max(spot - strike, 0) - max(spot - cap, 0)</pre>
+                 = max(spot - strike, 0) - max(spot - cap, 0)</code></pre>
 
               <h6>Vanilla Put Option Payoff</h6>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
-vanillaPutPayoff = max(strike - spot, 0)</pre>
+              <pre><code class="solidity m-3 p-1">
+vanillaPutPayoff = max(strike - spot, 0)</code></pre>
 
               <h6>Floored Put Option Payoff</h6>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
+              <pre><code class="solidity m-3 p-1">
 flooredPutPayoff = max(strike - max(spot, floor), 0)
-                 = max(strike - spot, 0) - max(floor - spot, 0)</pre>
+                 = max(strike - spot, 0) - max(floor - spot, 0)</code></pre>
 
               <hr />
-              <br />
 
+              <a ref="algorithms"></a>
+              <br />
               <h5 class="mb-3">Algorithms</h5>
               <h6>Decimal Places</h6>
               <p>Four types of decimal places are involved in these calculations:</p>
@@ -73,7 +76,7 @@ flooredPutPayoff = max(strike - max(spot, floor), 0)
                 <li>Collateral is in the *token0* (or *baseToken*)</li>
               </ul>
               <p>Call Payoff:</p>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
+              <pre><code class="solidity m-3 p-1">
 callPayoff = 0
 if (spot > 0 && spot > strike) {
   if (bound > strike && spot > bound) {
@@ -81,14 +84,14 @@ if (spot > 0 && spot > strike) {
   } else {
     callPayoff = [(spot - strike) / spot] x [tokens / (10^optinoDecimals)] x (10^decimals0)
   }
-}</pre>
+}</code></pre>
               <p>Call Collateral:</p>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
+              <pre><code class="solidity m-3 p-1">
 if (bound <= strike) {
   callCollateral = [tokens / (10^optinoDecimals)] x (10^decimals0)
 } else {
   callCollateral = [(bound - strike) / bound] x [tokens / (10^optinoDecimals)] x (10^decimals0)
-}</pre>
+}</code></pre>
               <br />
 
               <h6>Put Payoff And Collateral</h6>
@@ -99,19 +102,23 @@ if (bound <= strike) {
                 <li>Collateral is in the *token1* (or *quoteToken*)</li>
               </ul>
               <p>Put Payoff:</p>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
-if (bound == 0 || (bound > 0 && spot >= bound)) {
-  putPayoff = [(strike - spot) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
-} else {
-  putPayoff = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
-}</pre>
+              <pre><code class="solidity m-3 p-1">
+putPayoff = 0
+if (spot < strike) {
+  if (bound == 0 || (bound > 0 && spot >= bound)) {
+    putPayoff = [(strike - spot) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
+  } else {
+    putPayoff = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)
+  }
+}</code></pre>
               <p>Put Collateral:</p>
-              <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;">
-putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)</pre>
+              <pre><code class="solidity m-3 p-1">
+putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDecimals)] x (10^decimals1)</code></pre>
 
               <hr />
-              <br />
 
+              <a ref="solidityimplementation"></a>
+              <br />
               <h5>Ethereum Solidity Smart Contract Implementation</h5>
               <p>Info:</p>
               <ul>
@@ -126,7 +133,7 @@ putCollateral = [(strike - bound) / (10^rateDecimals)] x [tokens / (10^optinoDec
               <p>Solidity Code from factory <b-link :href="explorer + 'address/' + address + '#code'" class="card-link" target="_blank">{{ address }}</b-link> and template <b-link :href="explorer + 'address/' + optinoTokenTemplate + '#code'" class="card-link" target="_blank">{{ optinoTokenTemplate }}</b-link>:</p>
 
               <!-- <pre class="bg-light mx-4 my-2 p-2" style="color: #e83e8c;"> -->
-              <pre><code class="solidity mx-4 my-2 p2">
+              <pre><code class="solidity m-3 p-1">
 /// @notice Vanilla, capped call and floored put options formulae for 100% collateralisation
 // ----------------------------------------------------------------------------
 // vanillaCallPayoff = max(spot - strike, 0)
@@ -261,5 +268,53 @@ contract OptinoFormulae is DataType {
     optinoTokenTemplate() {
       return store.getters['optinoFactory/optinoTokenTemplate'];
     },
+  },
+  methods: {
+    highlightIt() {
+      logInfo("Docs", "highlightIt() Called");
+      var t = this;
+      setTimeout(function() {
+        logInfo("Docs", "highlightIt() hljs init");
+        hljs.registerLanguage('solidity', window.hljsDefineSolidity);
+        hljs.initHighlightingOnLoad();
+      }, 2500);
+    },
+    scrollMeTo(refName) {
+      var element = this.$refs[refName];
+      var top = element.offsetTop;
+      window.scrollTo(0, top);
+    }
+  },
+  updated() {
+    // logInfo("Docs", "updated() Called");
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightBlock(block);
+      // console.log("hljs: " + JSON.stringify(block));
+    });
+    // var t = this;
+    // Vue.nextTick(function () {
+    //   t.highlightIt();
+    //   // DOM updated
+    // });
+    // this.highlightIt();
+  },
+  mounted() {
+    // logInfo("Docs", "mounted() Called");
+    hljs.registerLanguage('solidity', window.hljsDefineSolidity);
+    // document.addEventListener('DOMContentLoaded', (event) => {
+      document.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightBlock(block);
+        // console.log("hljs: " + JSON.stringify(block));
+      });
+    // });
+    // document.addEventListener('DOMContentLoaded', (event) => {
+    //   document.querySelectorAll('pre code').forEach((block) => {
+    //     hljs.highlightBlock(block);
+    //   });
+    // });
+
+    // this.highlightIt();
+    // hljs.initHighlightingOnLoad();
+
   },
 };
