@@ -2,9 +2,8 @@ const TokensExplorer = {
   template: `
     <div class="mt-5 pt-3">
       <b-card no-body header="Tokens" class="border-0" header-class="p-1">
-        <br />
-        <b-card no-body class="mb-1">
-          <b-card-body class="p-1">
+        <b-card no-body class="border-0 m-0 mt-2">
+          <b-card-body class="p-0">
 
             <div class="d-flex m-0 p-0" style="height: 37px;">
               <div class="pr-1">
