@@ -44,7 +44,9 @@ const Docs = {
 
                 <br />
                 <h5 ref="optionpayoffformulae" class="mb-3">Option Payoff Formulae</h5>
-                <p>The following traditional option pricing formulae are used to build the algorithms and the Ethereum Solidity implementation below.</p>
+                <p>This first version of the Optino Protocol implements the following option payoff formulae. Refer to <b-link href="https://books.google.com.au/books?id=LYTVCgAAQBAJ&lpg=PA580&ots=5--ulSKjbr&dq=capped%20call%20floored%20put&pg=PA578#v=onepage&q=capped%20call%20floored%20put&f=false" class="card-link" target="_blank">Zhang, P.G. (1998) Exotic Options: A Guide To Second Generation Options (2nd Edition), pages 578 - 582</b-link> for further information about Capped Calls and Floored Puts.</p>
+
+                <br />
                 <h6>Vanilla Call Option Payoff</h6>
                 <pre><code class="solidity m-2 p-2">vanillaCallPayoff = max(spot - strike, 0)</code></pre>
 
@@ -119,7 +121,7 @@ if (spot < strike) {
                 <hr />
 
                 <br />
-                <h5 ref="solidityimplementation">Ethereum Solidity Smart Contract Implementation</h5>
+                <h5 ref="solidityimplementation" class="mb-3">Ethereum Solidity Smart Contract Implementation</h5>
                 <p>Info:</p>
                 <ul>
                   <li>Using 256 bit unsigned integers</li>
