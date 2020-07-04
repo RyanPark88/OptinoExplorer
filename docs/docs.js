@@ -23,7 +23,7 @@ const Docs = {
               <b-card-text>
                 <h5 class="mb-3">Formulae</h5>
                 <ul>
-                  <li><b-link @click="scrollMeTo('optionpayoffformulae')">Option Payoff Formulae</b-link>
+                  <li><b-link @click="scrollTo('optionpayoffformulae')">Option Payoff Formulae</b-link>
                     <ul>
                       <li>Vanilla Call Option Payoff</li>
                       <li>Capped Call Option Payoff</li>
@@ -31,20 +31,19 @@ const Docs = {
                       <li>Floored Put Option Payoff</li>
                     </ul>
                   </li>
-                  <li><b-link @click="scrollMeTo('algorithms')">Algorithms</b-link>
+                  <li><b-link @click="scrollTo('algorithms')">Algorithms</b-link>
                     <ul>
                       <li>Decimal Places</li>
                       <li>Call Payoff And Collateral</li>
                       <li>Put Payoff And Collateral</li>
                     </ul>
                   </li>
-                  <li><b-link @click="scrollMeTo('solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
+                  <li><b-link @click="scrollTo('solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
                 </ul>
                 <hr />
 
-                <a ref="optionpayoffformulae"></a>
                 <br />
-                <h5 class="mb-3">Option Payoff Formulae</h5>
+                <h5 ref="optionpayoffformulae" class="mb-3">Option Payoff Formulae</h5>
                 <p>The following traditional option pricing formulae are used to build the algorithms and the Ethereum Solidity implementation below.</p>
                 <h6>Vanilla Call Option Payoff</h6>
                 <pre><code class="solidity m-2 p-2">vanillaCallPayoff = max(spot - strike, 0)</code></pre>
@@ -62,9 +61,8 @@ const Docs = {
 
                 <hr />
 
-                <a ref="algorithms"></a>
                 <br />
-                <h5 class="mb-3">Algorithms</h5>
+                <h5 ref="algorithms" class="mb-3">Algorithms</h5>
                 <h6>Decimal Places</h6>
                 <p>Four types of decimal places are involved in these calculations:</p>
                 <ul>
@@ -120,9 +118,8 @@ if (spot < strike) {
 
                 <hr />
 
-                <a ref="solidityimplementation"></a>
                 <br />
-                <h5>Ethereum Solidity Smart Contract Implementation</h5>
+                <h5 ref="solidityimplementation">Ethereum Solidity Smart Contract Implementation</h5>
                 <p>Info:</p>
                 <ul>
                   <li>Using 256 bit unsigned integers</li>
@@ -294,6 +291,7 @@ contract OptinoFormulae is DataType {
       } else if ("all" == to.params.param) {
         this.section = 3;
       }
+      // console.log(this.$refs);
       // const toDepth = to.path.split('/').length
       // const fromDepth = from.path.split('/').length
       // this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
@@ -313,7 +311,7 @@ contract OptinoFormulae is DataType {
         hljs.initHighlightingOnLoad();
       }, 2500);
     },
-    scrollMeTo(refName) {
+    scrollTo(refName) {
       var element = this.$refs[refName];
       var top = element.offsetTop;
       window.scrollTo(0, top);
@@ -323,17 +321,10 @@ contract OptinoFormulae is DataType {
     // logInfo("Docs", "updated() Called");
     document.querySelectorAll('pre code').forEach((block) => {
       hljs.highlightBlock(block);
-      // console.log("hljs: " + JSON.stringify(block));
     });
-    // var t = this;
-    // Vue.nextTick(function () {
-    //   t.highlightIt();
-    //   // DOM updated
-    // });
-    // this.highlightIt();
   },
   mounted() {
-    logInfo("Docs", "mounted() $route: " + JSON.stringify(this.$route.params.param));
+    // logInfo("Docs", "mounted() $route: " + JSON.stringify(this.$route.params.param));
     if ("intro" == this.$route.params.param) {
       this.section = 0;
     } else if ("risks" == this.$route.params.param) {
@@ -356,14 +347,5 @@ contract OptinoFormulae is DataType {
         // console.log("hljs: " + JSON.stringify(block));
       });
     // });
-    // document.addEventListener('DOMContentLoaded', (event) => {
-    //   document.querySelectorAll('pre code').forEach((block) => {
-    //     hljs.highlightBlock(block);
-    //   });
-    // });
-
-    // this.highlightIt();
-    // hljs.initHighlightingOnLoad();
-
   },
 };
