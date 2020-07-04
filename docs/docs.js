@@ -276,6 +276,29 @@ contract OptinoFormulae is DataType {
       return store.getters['optinoFactory/optinoTokenTemplate'];
     },
   },
+  watch: {
+    '$route' (to, from) {
+      logInfo("Docs", "watch.$route(" + to.params.param + ", " + from.params.param + ") Called");
+      if ("intro" == to.params.param) {
+        this.section = 0;
+      } else if ("risks" == to.params.param) {
+        this.section = 1;
+      } else if ("howto" == to.params.param) {
+        this.section = 2;
+      } else if ("formulae" == to.params.param) {
+        this.section = 3;
+      } else if ("factory" == to.params.param) {
+        this.section = 4;
+      } else if ("optinoandcover" == to.params.param) {
+        this.section = 5;
+      } else if ("all" == to.params.param) {
+        this.section = 3;
+      }
+      // const toDepth = to.path.split('/').length
+      // const fromDepth = from.path.split('/').length
+      // this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
+    }
+  },
   methods: {
     updateRouterParamsParam(event) {
       // logInfo("Docs", "updateRouterParamsParam(" + JSON.stringify(event) + ") Called");
