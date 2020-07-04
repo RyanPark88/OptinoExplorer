@@ -3,15 +3,25 @@ const Docs = {
     <div class="mt-5 pt-3">
       <b-card no-body header="Documentation" class="border-0" header-class="p-1">
         <b-card no-body class="border-0 m-0 mt-2">
-          <b-tabs pills card vertical end>
-            <b-tab title="Intro">
+          <b-tabs v-model="section" pills card vertical end nav-class="m-1 p-1" active-tab-class="m-1 mt-2 p-1">
+
+            <b-tab title="Intro" @click="updateRouterParamsParam('intro')">
               <b-card-text>
-                Intro
+                See <b-link @click="section = 3; updateRouterParamsParam('formulae')">Formulae</b-link>
               </b-card-text>
             </b-tab>
-            <b-tab title="Formulae" active>
+
+            <b-tab title="Risks" @click="updateRouterParamsParam('risks')">
+              <b-card-text>Risks</b-card-text>
+            </b-tab>
+
+            <b-tab title="How To" @click="updateRouterParamsParam('howto')">
+              <b-card-text>How To ...</b-card-text>
+            </b-tab>
+
+            <b-tab title="Formulae" @click="updateRouterParamsParam('formulae')">
               <b-card-text>
-                <h5 class="mb-3">Table Of Contents</h5>
+                <h5 class="mb-3">Formulae</h5>
                 <ul>
                   <li><b-link @click="scrollMeTo('optionpayoffformulae')">Option Payoff Formulae</b-link>
                     <ul>
@@ -194,13 +204,17 @@ contract OptinoFormulae is DataType {
 }</code></pre>
               </b-card-text>
             </b-tab>
-            <!--
-            <b-tab title="Risks">
-              <b-card-text>Risks</b-card-text>
+
+            <b-tab title="Factory" @click="updateRouterParamsParam('factory')">
+              <b-card-text>Factory</b-card-text>
             </b-tab>
-            -->
+
+            <b-tab title="Optino And Cover" @click="updateRouterParamsParam('optinoandcover')">
+              <b-card-text>Optino And Cover</b-card-text>
+            </b-tab>
+
             <!--
-            <b-tab title="Reference">
+            <b-tab title="Reference" @click="updateRouterParamsParam('reference')">
               <b-card-text>Reference</b-card-text>
             </b-tab>
             -->
@@ -248,6 +262,7 @@ contract OptinoFormulae is DataType {
   `,
   data: function () {
     return {
+      section: 2,
     }
   },
   computed: {
@@ -262,6 +277,10 @@ contract OptinoFormulae is DataType {
     },
   },
   methods: {
+    updateRouterParamsParam(event) {
+      // logInfo("Docs", "updateRouterParamsParam(" + JSON.stringify(event) + ") Called");
+      this.$router.push({ params: { param: event }});
+    },
     highlightIt() {
       logInfo("Docs", "highlightIt() Called");
       var t = this;
@@ -291,7 +310,22 @@ contract OptinoFormulae is DataType {
     // this.highlightIt();
   },
   mounted() {
-    // logInfo("Docs", "mounted() Called");
+    logInfo("Docs", "mounted() $route: " + JSON.stringify(this.$route.params.param));
+    if ("intro" == this.$route.params.param) {
+      this.section = 0;
+    } else if ("risks" == this.$route.params.param) {
+      this.section = 1;
+    } else if ("howto" == this.$route.params.param) {
+      this.section = 2;
+    } else if ("formulae" == this.$route.params.param) {
+      this.section = 3;
+    } else if ("factory" == this.$route.params.param) {
+      this.section = 4;
+    } else if ("optinoandcover" == this.$route.params.param) {
+      this.section = 5;
+    } else if ("all" == this.$route.params.param) {
+      this.section = 3;
+    }
     hljs.registerLanguage('solidity', window.hljsDefineSolidity);
     // document.addEventListener('DOMContentLoaded', (event) => {
       document.querySelectorAll('pre code').forEach((block) => {
