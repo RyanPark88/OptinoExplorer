@@ -31,7 +31,7 @@ const Docs = {
               <b-card-text>
                 <h5 ref="formulae_top" class="mb-3">Formulae</h5>
                 <ul>
-                  <li><b-link @click.prevent="scrollTo('formulae_optionpayoffformulae')">Option Payoff Formulae</b-link>
+                  <li><b-link @click.prevent="updateRouterParamsSectionTopic('formulae', 'optionpayoffformulae')">Option Payoff Formulae</b-link>
                     <ul>
                       <li>Vanilla Call Option Payoff</li>
                       <li>Capped Call Option Payoff</li>
@@ -39,14 +39,14 @@ const Docs = {
                       <li>Floored Put Option Payoff</li>
                     </ul>
                   </li>
-                  <li><b-link @click.prevent="scrollTo('formulae_algorithms')">Algorithms</b-link>
+                  <li><b-link @click.prevent="updateRouterParamsSectionTopic('formulae', 'algorithms')">Algorithms</b-link>
                     <ul>
                       <li>Decimal Places</li>
                       <li>Call Payoff And Collateral</li>
                       <li>Put Payoff And Collateral</li>
                     </ul>
                   </li>
-                  <li><b-link @click.prevent="scrollTo('formulae_solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
+                  <li><b-link @click.prevent="updateRouterParamsSectionTopic('formulae', 'solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
                 </ul>
                 <hr />
 
@@ -361,6 +361,12 @@ contract OptinoFormulae is DataType {
     } else if ("all" == this.$route.params.section) {
       this.section = 3;
     }
+    var t = this;
+    setTimeout(function() {
+      logInfo("Docs", "mounted() scrollTo: " + t.$route.params.section + "_" + t.$route.params.topic);
+      t.scrollTo(t.$route.params.section + "_" + t.$route.params.topic);
+    }, 1000);
+
     hljs.registerLanguage('solidity', window.hljsDefineSolidity);
     // document.addEventListener('DOMContentLoaded', (event) => {
       document.querySelectorAll('pre code').forEach((block) => {
