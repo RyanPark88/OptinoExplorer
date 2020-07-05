@@ -5,25 +5,33 @@ const Docs = {
         <b-card no-body class="border-0 m-0 mt-2">
           <b-tabs v-model="section" pills card vertical end nav-class="m-1 p-1" active-tab-class="m-1 mt-2 p-1">
 
-            <b-tab title="Intro" @click="updateRouterParamsParam('intro')">
+            <b-tab title="Intro" @click.prevent="updateRouterParamsSectionTopic('intro', 'top')">
               <b-card-text>
-                See <b-link @click="section = 3; updateRouterParamsParam('formulae')">Formulae</b-link>
+                <h5 ref="intro_top" class="mb-3">Intro</h5>
+                See <b-link @click.prevent="section = 3; updateRouterParamsSectionTopic('formulae', 'algorithms')">Formulae - Algorithms</b-link>
               </b-card-text>
             </b-tab>
 
-            <b-tab title="Risks" @click="updateRouterParamsParam('risks')">
-              <b-card-text>Risks</b-card-text>
-            </b-tab>
+            <b-tab title="Risks" @click.prevent="updateRouterParamsSectionTopic('risks', 'top')">
 
-            <b-tab title="How To" @click="updateRouterParamsParam('howto')">
-              <b-card-text>How To ...</b-card-text>
-            </b-tab>
-
-            <b-tab title="Formulae" @click="updateRouterParamsParam('formulae')">
               <b-card-text>
-                <h5 class="mb-3">Formulae</h5>
+                <h5 ref="risks_top" class="mb-3">Risks</h5>
+                Risks
+              </b-card-text>
+            </b-tab>
+
+            <b-tab title="How To" @click.prevent="updateRouterParamsSectionTopic('howto', 'top')">
+              <b-card-text>
+                <h5 ref="howto_top" class="mb-3">How To ...</h5>
+                How To ...
+              </b-card-text>
+            </b-tab>
+
+            <b-tab title="Formulae" @click.prevent="updateRouterParamsSectionTopic('formulae', 'top')">
+              <b-card-text>
+                <h5 ref="formulae_top" class="mb-3">Formulae</h5>
                 <ul>
-                  <li><b-link @click="scrollTo('optionpayoffformulae')">Option Payoff Formulae</b-link>
+                  <li><b-link @click.prevent="scrollTo('formulae_optionpayoffformulae')">Option Payoff Formulae</b-link>
                     <ul>
                       <li>Vanilla Call Option Payoff</li>
                       <li>Capped Call Option Payoff</li>
@@ -31,19 +39,19 @@ const Docs = {
                       <li>Floored Put Option Payoff</li>
                     </ul>
                   </li>
-                  <li><b-link @click="scrollTo('algorithms')">Algorithms</b-link>
+                  <li><b-link @click.prevent="scrollTo('formulae_algorithms')">Algorithms</b-link>
                     <ul>
                       <li>Decimal Places</li>
                       <li>Call Payoff And Collateral</li>
                       <li>Put Payoff And Collateral</li>
                     </ul>
                   </li>
-                  <li><b-link @click="scrollTo('solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
+                  <li><b-link @click.prevent="scrollTo('formulae_solidityimplementation')">Ethereum Solidity Smart Contract Implementation</b-link></li>
                 </ul>
                 <hr />
 
                 <br />
-                <h5 ref="optionpayoffformulae" class="mb-3">Option Payoff Formulae</h5>
+                <h5 ref="formulae_optionpayoffformulae" class="mb-3">Option Payoff Formulae</h5>
                 <p>This first version of the Optino Protocol implements the following option payoff formulae. Refer to <b-link href="https://books.google.com.au/books?id=LYTVCgAAQBAJ&lpg=PA580&ots=5--ulSKjbr&dq=capped%20call%20floored%20put&pg=PA578#v=onepage&q=capped%20call%20floored%20put&f=false" class="card-link" target="_blank">Zhang, P.G. (1998) Exotic Options: A Guide To Second Generation Options (2nd Edition), pages 578 - 582</b-link> for further information about Capped Calls and Floored Puts.</p>
 
                 <br />
@@ -64,7 +72,7 @@ const Docs = {
                 <hr />
 
                 <br />
-                <h5 ref="algorithms" class="mb-3">Algorithms</h5>
+                <h5 ref="formulae_algorithms" class="mb-3">Algorithms</h5>
                 <h6>Decimal Places</h6>
                 <p>Four types of decimal places are involved in these calculations:</p>
                 <ul>
@@ -121,7 +129,7 @@ if (spot < strike) {
                 <hr />
 
                 <br />
-                <h5 ref="solidityimplementation" class="mb-3">Ethereum Solidity Smart Contract Implementation</h5>
+                <h5 ref="formulae_solidityimplementation" class="mb-3">Ethereum Solidity Smart Contract Implementation</h5>
                 <p>Info:</p>
                 <ul>
                   <li>Using 256 bit unsigned integers</li>
@@ -204,16 +212,22 @@ contract OptinoFormulae is DataType {
               </b-card-text>
             </b-tab>
 
-            <b-tab title="Factory" @click="updateRouterParamsParam('factory')">
-              <b-card-text>Factory</b-card-text>
+            <b-tab title="Factory" @click.prevent="updateRouterParamsSectionTopic('factory', 'top')">
+              <b-card-text>
+                <h5 ref="factory_top" class="mb-3">Factory</h5>
+                Factory
+              </b-card-text>
             </b-tab>
 
-            <b-tab title="Optino And Cover" @click="updateRouterParamsParam('optinoandcover')">
-              <b-card-text>Optino And Cover</b-card-text>
+            <b-tab title="Optino And Cover" @click.prevent="updateRouterParamsSectionTopic('optinoandcover', 'top')">
+              <b-card-text>
+                <h5 ref="optinoandcover_top" class="mb-3">Optino And Cover</h5>
+                Optino And Cover
+              </b-card-text>
             </b-tab>
 
             <!--
-            <b-tab title="Reference" @click="updateRouterParamsParam('reference')">
+            <b-tab title="Reference" @click.prevent="updateRouterParamsSectionTopic('reference', 'top')">
               <b-card-text>Reference</b-card-text>
             </b-tab>
             -->
@@ -277,20 +291,20 @@ contract OptinoFormulae is DataType {
   },
   watch: {
     '$route' (to, from) {
-      logInfo("Docs", "watch.$route(" + to.params.param + ", " + from.params.param + ") Called");
-      if ("intro" == to.params.param) {
+      logInfo("Docs", "watch.$route(to:" + to.params.section + "/" + to.params.topic + ", from:" + from.params.section + "/" + from.params.topic + ")");
+      if ("intro" == to.params.section) {
         this.section = 0;
-      } else if ("risks" == to.params.param) {
+      } else if ("risks" == to.params.section) {
         this.section = 1;
-      } else if ("howto" == to.params.param) {
+      } else if ("howto" == to.params.section) {
         this.section = 2;
-      } else if ("formulae" == to.params.param) {
+      } else if ("formulae" == to.params.section) {
         this.section = 3;
-      } else if ("factory" == to.params.param) {
+      } else if ("factory" == to.params.section) {
         this.section = 4;
-      } else if ("optinoandcover" == to.params.param) {
+      } else if ("optinoandcover" == to.params.section) {
         this.section = 5;
-      } else if ("all" == to.params.param) {
+      } else if ("all" == to.params.section) {
         this.section = 3;
       }
       // console.log(this.$refs);
@@ -300,9 +314,13 @@ contract OptinoFormulae is DataType {
     }
   },
   methods: {
-    updateRouterParamsParam(event) {
-      // logInfo("Docs", "updateRouterParamsParam(" + JSON.stringify(event) + ") Called");
-      this.$router.push({ params: { param: event }});
+    updateRouterParamsSectionTopic(section, topic) {
+      logInfo("Docs", "updateRouterParamsSectionTopic(" + JSON.stringify(section) + ", " + topic + ")");
+      this.$router.push({ params: { section: section, topic: topic }}).catch(err => {});
+      var t = this;
+      setTimeout(function() {
+        t.scrollTo(section + "_" + topic);
+      }, 1000);
     },
     highlightIt() {
       logInfo("Docs", "highlightIt() Called");
@@ -314,6 +332,7 @@ contract OptinoFormulae is DataType {
       }, 2500);
     },
     scrollTo(refName) {
+      logInfo("Docs", "scrollTo(" + refName + ")");
       var element = this.$refs[refName];
       var top = element.offsetTop;
       window.scrollTo(0, top);
@@ -326,20 +345,20 @@ contract OptinoFormulae is DataType {
     });
   },
   mounted() {
-    // logInfo("Docs", "mounted() $route: " + JSON.stringify(this.$route.params.param));
-    if ("intro" == this.$route.params.param) {
+    logInfo("Docs", "mounted() $route: " + JSON.stringify(this.$route.params));
+    if ("intro" == this.$route.params.section) {
       this.section = 0;
-    } else if ("risks" == this.$route.params.param) {
+    } else if ("risks" == this.$route.params.section) {
       this.section = 1;
-    } else if ("howto" == this.$route.params.param) {
+    } else if ("howto" == this.$route.params.section) {
       this.section = 2;
-    } else if ("formulae" == this.$route.params.param) {
+    } else if ("formulae" == this.$route.params.section) {
       this.section = 3;
-    } else if ("factory" == this.$route.params.param) {
+    } else if ("factory" == this.$route.params.section) {
       this.section = 4;
-    } else if ("optinoandcover" == this.$route.params.param) {
+    } else if ("optinoandcover" == this.$route.params.section) {
       this.section = 5;
-    } else if ("all" == this.$route.params.param) {
+    } else if ("all" == this.$route.params.section) {
       this.section = 3;
     }
     hljs.registerLanguage('solidity', window.hljsDefineSolidity);

@@ -11,7 +11,7 @@ const routes = [{
     component: TokensExplorer,
     name: 'Tokens',
   }, {
-    path: '/docs/:param',
+    path: '/docs/:section/:topic',
     component: Docs,
     name: 'Docs',
   }, {
