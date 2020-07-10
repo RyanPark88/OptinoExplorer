@@ -95,6 +95,8 @@
                       <tokens></tokens>
                       <br />
                       <feeds></feeds>
+                      <br />
+                      <b-button size="sm" variant="link" v-b-popover.hover="'Power down this app'" @click="powerOff();" v-if="connect"><b-icon-power shift-v="-1" font-scale="1.5"></b-icon-power> Power down</b-button>
                     </b-card-body>
                   </b-card>
                 </b-sidebar>

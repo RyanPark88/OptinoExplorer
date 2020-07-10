@@ -136,6 +136,14 @@ const app = new Vue({
         t.statusSidebar = true;
       }, 2500);
     },
+    powerOff() {
+      store.dispatch('connection/setConnect', false);
+      localStorage.setItem('connect', false);
+      var t = this;
+      setTimeout(function() {
+        t.statusSidebar = true;
+      }, 2500);
+    },
     timeoutCallback() {
       // logInfo("app", "timeoutCallback() Called");
 
