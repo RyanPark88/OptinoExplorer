@@ -40,22 +40,22 @@ const OptinoExplorer = {
 
                   <b-form-group label-cols="3" label-size="sm" label="Spot">
                     <b-form inline>
-                      <b-form-input size="sm" style="width: 250px; text-align: right;" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Click to select"></b-form-input>
+                      <b-form-input size="sm" class="rightalignedinput" type="text" v-model.trim="optino.calculatedSpot" readonly placeholder="Click to select"></b-form-input>
                       <label class="sr-only" for="button-spot">Select Spot</label>
                       <b-button class="ml-1" size="sm" id="button-spot" @click="recalculateFeed('show', $event); $bvModal.show('bv-modal-optinoFeed')" variant="primary" v-b-popover.hover="'Select spot'">{{ feedName(optino) }}</b-button>
                     </b-form>
                   </b-form-group>
 
                   <b-form-group label-cols="3" label-size="sm" label-for="forminput-floor" label="Floor" :invalid-feedback="optino.floorMessage" v-if="optino.optionType == 'fp'">
-                    <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-floor" type="text" v-model.trim="optino.floor" @input="recalculate('floor', $event)" placeholder="Enter floor" :state="optino.floorMessage == null ? null : false"></b-form-input>
+                    <b-form-input size="sm" class="rightalignedinput" id="forminput-floor" type="text" v-model.trim="optino.floor" @input="recalculate('floor', $event)" placeholder="Enter floor" :state="optino.floorMessage == null ? null : false"></b-form-input>
                   </b-form-group>
 
                   <b-form-group label-cols="3" label-size="sm" label-for="forminput-strike" label="Strike" :invalid-feedback="optino.strikeMessage">
-                    <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-strike" type="text" v-model.trim="optino.strike" @input="recalculate('strike', $event)" placeholder="Enter strike" :state="optino.strikeMessage == null ? null : false"></b-form-input>
+                    <b-form-input size="sm" class="rightalignedinput" id="forminput-strike" type="text" v-model.trim="optino.strike" @input="recalculate('strike', $event)" placeholder="Enter strike" :state="optino.strikeMessage == null ? null : false"></b-form-input>
                   </b-form-group>
 
                   <b-form-group label-cols="3" label-size="sm" label-for="forminput-cap" label="Cap" :invalid-feedback="optino.capMessage" v-if="optino.optionType == 'cc'">
-                    <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-cap" type="text" v-model.trim="optino.cap" @input="recalculate('cap', $event)" placeholder="Enter cap" :state="optino.capMessage == null ? null : false"></b-form-input>
+                    <b-form-input size="sm" class="rightalignedinput" id="forminput-cap" type="text" v-model.trim="optino.cap" @input="recalculate('cap', $event)" placeholder="Enter cap" :state="optino.capMessage == null ? null : false"></b-form-input>
                   </b-form-group>
 
                   <b-form-group label-cols="3" label-size="sm" label="Expiry" :description="'Local ' + new Date(expiry*1000).toLocaleString() + ', UTC ' + formatUTC(expiry*1000) + '. Defaults to 08:00:00Z'">
@@ -122,7 +122,7 @@ const OptinoExplorer = {
                   </b-form-group>
 
                   <b-form-group label-cols="3" label-size="sm" label="Tokens" description="Number of Optino and Cover tokens">
-                    <b-form-input size="sm" style="width: 250px; text-align: right;" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
+                    <b-form-input size="sm" class="rightalignedinput" type="text" v-model.trim="optino.tokens" @input="recalculate('tokens', $event)"></b-form-input>
                   </b-form-group>
 
                   <b-tabs small card v-model="optinoFeedMode" content-class="m-0" active-tab-class="m-0 mt-2 p-0" nav-class="m-0 p-0" nav-wrapper-class="m-0 p-0">
@@ -147,14 +147,14 @@ const OptinoExplorer = {
                       <b-form-group label-cols="3" label-size="sm" label="Current Spot">
                         <b-form inline>
                           <label class="sr-only" for="forminput-currentSpot">Current Spot</label>
-                          <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-currentSpot" type="text" v-model.trim="optino.currentSpot" readonly></b-form-input>
+                          <b-form-input size="sm" class="rightalignedinput" id="forminput-currentSpot" type="text" v-model.trim="optino.currentSpot" readonly></b-form-input>
                         </b-form>
                       </b-form-group>
                       <b-form-group label-cols="3" label-size="sm" label="Current Optino Payoff">
                         <b-form inline>
                           <label class="sr-only" for="forminput-currentOptinoPayoff">Current Spot</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-currentOptinoPayoff" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-currentOptinoPayoff" type="text" v-model.trim="optino.currentPayoff" readonly></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -162,7 +162,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-currentCoverPayoff">Current Spot</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-currentCoverPayoff" type="text" v-model.trim="optino.currentCoverPayoff" readonly></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-currentCoverPayoff" type="text" v-model.trim="optino.currentCoverPayoff" readonly></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -173,7 +173,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-collateral">Collateral</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-collateral" type="text" v-model.trim="optino.collateralTokens" readonly placeholder="Enter details above"></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-collateral" type="text" v-model.trim="optino.collateralTokens" readonly placeholder="Enter details above"></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -181,7 +181,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-fee">Fee</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-fee" type="text" v-model.trim="optino.collateralFee" readonly></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-fee" type="text" v-model.trim="optino.collateralFee" readonly></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -189,7 +189,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-collateralplusfee">Collateral + Fee</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-collateralplusfee" type="text" v-model.trim="optino.collateralTokensPlusFee" readonly></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-collateralplusfee" type="text" v-model.trim="optino.collateralTokensPlusFee" readonly></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -200,7 +200,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-balance">Your Balance</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-balance" type="text" :value="optino.collateralToken == null ? null : tokenData[optino.collateralToken].balance" readonly></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-balance" type="text" :value="optino.collateralToken == null ? null : tokenData[optino.collateralToken].balance" readonly></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -209,7 +209,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-allowance">Your Allowance</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-allowance" type="text" :value="optino.collateralToken == null ? null : tokenData[optino.collateralToken].allowance" readonly></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-allowance" type="text" :value="optino.collateralToken == null ? null : tokenData[optino.collateralToken].allowance" readonly></b-form-input>
                           </b-input-group>
                         </b-form>
                       </b-form-group>
@@ -218,7 +218,7 @@ const OptinoExplorer = {
                         <b-form inline>
                           <label class="sr-only" for="forminput-setallowance">Set Allowance</label>
                           <b-input-group size="sm" :append="tokenSymbol(optino.collateralToken)">
-                            <b-form-input size="sm" style="width: 250px; text-align: right;" id="forminput-setallowance" type="text" v-model.trim="optino.collateralAllowance"></b-form-input>
+                            <b-form-input size="sm" class="rightalignedinput" id="forminput-setallowance" type="text" v-model.trim="optino.collateralAllowance"></b-form-input>
                           </b-input-group>
                           <b-button size="sm" class="ml-1" @click="setCollateralAllowance()" variant="primary" v-b-popover.hover="'Set Allowance'">Set Allowance</b-button>
                         </b-form>
@@ -407,7 +407,7 @@ const OptinoExplorer = {
                   </b-form-group>
                   <b-form-group label-cols="5" label-size="sm" label="Spot">
                     <b-input-group>
-                      <b-form-input size="sm" type="text" style="width: 250px; text-align: right;" v-model.trim="optino.calculatedSpot" readonly placeholder="Select feed above"></b-form-input>
+                      <b-form-input size="sm" type="text" class="rightalignedinput" v-model.trim="optino.calculatedSpot" readonly placeholder="Select feed above"></b-form-input>
                       <b-input-group-append>
                         <b-button size="sm" variant="outline-primary" disabled v-b-popover.hover="'Name of reference spot rate'">{{ feedName(optino) }}</b-button>
                       </b-input-group-append>

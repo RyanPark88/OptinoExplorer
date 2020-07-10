@@ -5,21 +5,44 @@ const Docs = {
         <b-card no-body class="border-0 m-0 mt-2">
           <b-tabs v-model="section" pills card vertical end nav-class="m-1 p-1" active-tab-class="m-1 mt-2 p-1">
 
+            <!-- Intro -->
             <b-tab title="Intro" @click.prevent="updateRouterParamsSectionTopic('intro', 'top')">
               <b-card-text>
                 <h5 ref="intro_top" class="mb-3">Intro</h5>
+
+                <p>The Optino Protocol is a set of Ethereum smart contracts that allows option sellers to escrow collateral into blah</p>
+
+                <p>Features:</p>
+                <ul>
+                  <li>European Options, spot price and payoff calculated after expiry based on reference rate</li>
+                  <li>Choose your reference rate</li>
+                  <li>Choose your tokens</li>
+                </ul>
+
+                <p>Solidity Code from factory <b-link :href="explorer + 'address/' + address + '#code'" class="card-link" target="_blank">{{ address }}</b-link> and template <b-link :href="explorer + 'address/' + optinoTokenTemplate + '#code'" class="card-link" target="_blank">{{ optinoTokenTemplate }}</b-link>:</p>
+
+
+
                 See <b-link @click.prevent="section = 3; updateRouterParamsSectionTopic('formulae', 'algorithms')">Formulae - Algorithms</b-link>
               </b-card-text>
             </b-tab>
 
+            <!-- Risks -->
             <b-tab title="Risks" @click.prevent="updateRouterParamsSectionTopic('risks', 'top')">
 
               <b-card-text>
                 <h5 ref="risks_top" class="mb-3">Risks</h5>
-                Risks
+                <p>Risks:</p>
+                <ul>
+                  <li>Price feed</li>
+                  <li>Collateral token</li>
+                  <li>This smart contract</li>
+                </ul>
+
               </b-card-text>
             </b-tab>
 
+            <!-- How To -->
             <b-tab title="How To" @click.prevent="updateRouterParamsSectionTopic('howto', 'top')">
               <b-card-text>
                 <h5 ref="howto_top" class="mb-3">How To ...</h5>
@@ -27,6 +50,7 @@ const Docs = {
               </b-card-text>
             </b-tab>
 
+            <!-- Formulae -->
             <b-tab title="Formulae" @click.prevent="updateRouterParamsSectionTopic('formulae', 'top')">
               <b-card-text>
                 <h5 ref="formulae_top" class="mb-3">Formulae</h5>
@@ -52,7 +76,7 @@ const Docs = {
 
                 <br />
                 <h5 ref="formulae_optionpayoffformulae" class="mb-3">Option Payoff Formulae</h5>
-                <p>This first version of the Optino Protocol implements the following option payoff formulae. Refer to <b-link href="https://books.google.com.au/books?id=LYTVCgAAQBAJ&lpg=PA580&ots=5--ulSKjbr&dq=capped%20call%20floored%20put&pg=PA578#v=onepage&q=capped%20call%20floored%20put&f=false" class="card-link" target="_blank">Zhang, P.G. (1998) Exotic Options: A Guide To Second Generation Options (2nd Edition), pages 578 - 582</b-link> for further information about Capped Calls and Floored Puts.</p>
+                <p>This first version of the Optino Protocol implements the following option payoff formulae. Refer to <b-link href="https://www.google.com/search?q=capped+call+floored+put+zhang" class="card-link" target="_blank">Zhang, P.G. (1998) Exotic Options: A Guide To Second Generation Options (2nd Edition), pages 578 - 582</b-link> for further information about Capped Calls and Floored Puts.</p>
 
                 <br />
                 <h6>Vanilla Call Option Payoff</h6>
@@ -141,7 +165,6 @@ if (spot < strike) {
                   <li>Cover token holders execute <code>settle()</code> after expiry to receive the calculated <code>(collateral - payoff)</code> in proportion to the token holdings</li>
                 </ul>
                 <p>Solidity Code from factory <b-link :href="explorer + 'address/' + address + '#code'" class="card-link" target="_blank">{{ address }}</b-link> and template <b-link :href="explorer + 'address/' + optinoTokenTemplate + '#code'" class="card-link" target="_blank">{{ optinoTokenTemplate }}</b-link>:</p>
-
                 <pre><code class="solidity m-2 p-2">/// @notice Vanilla, capped call and floored put options formulae for 100% collateralisation
 // ----------------------------------------------------------------------------
 // vanillaCallPayoff = max(spot - strike, 0)
@@ -212,17 +235,89 @@ contract OptinoFormulae is DataType {
               </b-card-text>
             </b-tab>
 
+            <!-- Factory -->
             <b-tab title="Factory" @click.prevent="updateRouterParamsSectionTopic('factory', 'top')">
               <b-card-text>
                 <h5 ref="factory_top" class="mb-3">Factory</h5>
                 Factory
+                <pre><code class="solidity m-2 p-2">{
+	"79ba5097": "acceptOwnership()",
+	"10f9fb1d": "calcPayoffs(address[2],address[2],uint8[6],uint256[5],uint256[])",
+	"e7595d25": "calculateSpot(address[2],uint8[6])",
+	"ddca3f43": "fee()",
+	"06ac8ad8": "feedLength()",
+	"34d368a6": "getCalcData(bytes32)",
+	"108861f3": "getFeedByIndex(uint256)",
+	"b7aa893b": "getFeedData(address)",
+	"aaf97446": "getFeedDecimals0(bytes32)",
+	"edea01e7": "getRateFromFeed(address,uint8)",
+	"bbe8f6b2": "getSeriesByIndex(uint256)",
+	"7f5a9fd7": "getSeriesByKey(bytes32)",
+	"235fb60b": "getSeriesSpot(bytes32)",
+	"4c5359e7": "lockFeed(address)",
+	"e21f37ce": "message()",
+	"1dc4e76e": "mint(address[2],address[2],uint8[6],uint256[5],address)",
+	"d4ee1d90": "newOwner()",
+	"d28b39e1": "optinoTokenTemplate()",
+	"8da5cb5b": "owner()",
+	"5f3e849f": "recoverTokens(address,address,uint256)",
+	"b6f1a861": "seriesLength()",
+	"3ce6d0bb": "setSeriesSpot(bytes32)",
+	"83494642": "setSeriesSpotIfPriceFeedFails(bytes32,uint256)",
+	"f2fde38b": "transferOwnership(address)",
+	"9012c4a8": "updateFee(uint256)",
+	"9b3278c6": "updateFeed(address,string,string,uint8,uint8)",
+	"d84960a1": "updateFeedNote(address,string)",
+	"1923be24": "updateMessage(string)"
+}</code></pre>
               </b-card-text>
             </b-tab>
 
+            <!-- Optino And Cover -->
             <b-tab title="Optino And Cover" @click.prevent="updateRouterParamsSectionTopic('optinoandcover', 'top')">
               <b-card-text>
                 <h5 ref="optinoandcover_top" class="mb-3">Optino And Cover</h5>
                 Optino And Cover
+                <pre><code class="solidity m-2 p-2">{
+	"79ba5097": "acceptOwnership()",
+	"dd62ed3e": "allowance(address,address)",
+	"095ea7b3": "approve(address,uint256)",
+	"70a08231": "balanceOf(address)",
+	"2241328b": "burn(address,uint256,uint8)",
+	"0aebeb4e": "close(uint256)",
+	"73f40032": "closeFor(address,uint256)",
+	"597e1fb5": "closed()",
+	"b2016bd4": "collateralToken()",
+	"66b3d249": "currentSpot()",
+	"8a3cae25": "currentSpotAndPayoff(uint256)",
+	"313ce567": "decimals()",
+	"c45a0155": "factory()",
+	"349225f8": "getFeedInfo()",
+	"5a9b0b89": "getInfo()",
+	"374f6d5d": "getPricingInfo()",
+	"53e6e77a": "getSeriesData()",
+	"d8940a53": "initOptinoToken(address,bytes32,address,bool,uint256)",
+	"986f3c12": "isCover()",
+	"40c10f19": "mint(address,uint256)",
+	"06fdde03": "name()",
+	"d4ee1d90": "newOwner()",
+	"ea425c9e": "optinoPair()",
+	"8da5cb5b": "owner()",
+	"5e39e130": "payoffForSpots(uint256,uint256[])",
+	"069c9fae": "recoverTokens(address,uint256)",
+	"2d20a009": "seriesKey()",
+	"2c47db45": "setSpot()",
+	"11da60b4": "settle()",
+	"3dd45adb": "settleFor(address)",
+	"8f775839": "settled()",
+	"6f265b93": "spot()",
+	"f4d50749": "spotAndPayoff(uint256)",
+	"95d89b41": "symbol()",
+	"18160ddd": "totalSupply()",
+	"a9059cbb": "transfer(address,uint256)",
+	"23b872dd": "transferFrom(address,address,uint256)",
+	"f2fde38b": "transferOwnership(address)"
+}</code></pre>
               </b-card-text>
             </b-tab>
 
@@ -335,7 +430,8 @@ contract OptinoFormulae is DataType {
       logInfo("Docs", "scrollTo(" + refName + ")");
       var element = this.$refs[refName];
       var top = element.offsetTop;
-      window.scrollTo(0, top);
+      // window.scrollTo(0, top);
+      window.scrollTo({ top: top, left: 0, behaviour: 'smooth' });
     }
   },
   updated() {
