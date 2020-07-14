@@ -134,15 +134,15 @@ const app = new Vue({
       var t = this;
       setTimeout(function() {
         t.statusSidebar = true;
-      }, 2500);
+      }, 1500);
     },
     powerOff() {
       store.dispatch('connection/setConnect', false);
       localStorage.setItem('connect', false);
       var t = this;
       setTimeout(function() {
-        t.statusSidebar = true;
-      }, 2500);
+        t.statusSidebar = false;
+      }, 1500);
     },
     timeoutCallback() {
       // logInfo("app", "timeoutCallback() Called");
