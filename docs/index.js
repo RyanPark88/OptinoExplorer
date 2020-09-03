@@ -57,12 +57,14 @@ const store = new Vuex.Store({
   },
   modules: {
     connection: connectionModule,
-    tokens: tokensModule,
-    payoff: payoffModule,
     feeds: feedsModule,
-    optinoFactory: optinoFactoryModule,
-    optinoExplorer: optinoExplorerModule,
     feedsExplorer: feedsExplorerModule,
+    governance: governanceModule,
+    governanceExplorer: governanceExplorerModule,
+    optinoExplorer: optinoExplorerModule,
+    optinoFactory: optinoFactoryModule,
+    payoff: payoffModule,
+    tokens: tokensModule,
     tokensExplorer: tokensExplorerModule,
   }
 });

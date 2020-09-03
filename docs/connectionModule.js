@@ -333,6 +333,7 @@ const Connection = {
       }
 
       if (store.getters['connection/isOk']) {
+        /*await*/ store.dispatch('governance/execWeb3', { count: this.count, networkChanged, blockChanged, coinbaseChanged });
         /*await*/ store.dispatch('tokens/execWeb3', { count: this.count, networkChanged, blockChanged, coinbaseChanged });
         /*await*/ store.dispatch('optinoFactory/execWeb3', { count: this.count, networkChanged, blockChanged, coinbaseChanged });
         /*await*/ store.dispatch('feeds/execWeb3', { count: this.count, networkChanged, blockChanged, coinbaseChanged });
