@@ -158,43 +158,43 @@ const governanceModule = {
   },
   mutations: {
     updateToken(state, token) {
-      logInfo("governanceModule", "mutations.updateToken(" + token + ")");
+      // logInfo("governanceModule", "mutations.updateToken(" + token + ")");
       Vue.set(state.govData, 'token', token);
     },
     updateRewardsPerSecond(state, rewardsPerSecond) {
-      logInfo("governanceModule", "mutations.updateRewardsPerSecond(" + rewardsPerSecond + ")");
+      // logInfo("governanceModule", "mutations.updateRewardsPerSecond(" + rewardsPerSecond + ")");
       Vue.set(state.govData, 'rewardsPerSecond', rewardsPerSecond);
     },
     updateProposalCost(state, proposalCost) {
-      logInfo("governanceModule", "mutations.updateProposalCost(" + proposalCost + ")");
+      // logInfo("governanceModule", "mutations.updateProposalCost(" + proposalCost + ")");
       Vue.set(state.govData, 'proposalCost', proposalCost);
     },
     updateProposalThreshold(state, proposalThreshold) {
-      logInfo("governanceModule", "mutations.updateProposalThreshold(" + proposalThreshold + ")");
+      // logInfo("governanceModule", "mutations.updateProposalThreshold(" + proposalThreshold + ")");
       Vue.set(state.govData, 'proposalThreshold', proposalThreshold);
     },
     updateQuorum(state, quorum) {
-      logInfo("governanceModule", "mutations.updateQuorum(" + quorum + ")");
+      // logInfo("governanceModule", "mutations.updateQuorum(" + quorum + ")");
       Vue.set(state.govData, 'quorum', quorum);
     },
     updateVotingDuration(state, votingDuration) {
-      logInfo("governanceModule", "mutations.updateVotingDuration(" + votingDuration + ")");
+      // logInfo("governanceModule", "mutations.updateVotingDuration(" + votingDuration + ")");
       Vue.set(state.govData, 'votingDuration', votingDuration);
     },
     updateExecuteDelay(state, executeDelay) {
-      logInfo("governanceModule", "mutations.updateExecuteDelay(" + executeDelay + ")");
+      // logInfo("governanceModule", "mutations.updateExecuteDelay(" + executeDelay + ")");
       Vue.set(state.govData, 'executeDelay', executeDelay);
     },
     updateRewardPool(state, rewardPool) {
-      logInfo("governanceModule", "mutations.updateRewardPool(" + rewardPool + ")");
+      // logInfo("governanceModule", "mutations.updateRewardPool(" + rewardPool + ")");
       Vue.set(state.govData, 'rewardPool', rewardPool);
     },
     updateTotalVotes(state, totalVotes) {
-      logInfo("governanceModule", "mutations.updateTotalVotes(" + totalVotes + ")");
+      // logInfo("governanceModule", "mutations.updateTotalVotes(" + totalVotes + ")");
       Vue.set(state.govData, 'totalVotes', totalVotes);
     },
     updateProposalCount(state, proposalCount) {
-      logInfo("governanceModule", "mutations.updateProposalCount(" + proposalCount + ")");
+      // logInfo("governanceModule", "mutations.updateProposalCount(" + proposalCount + ")");
       Vue.set(state.govData, 'proposalCount', proposalCount);
     },
     // updateToken(state, token) {
@@ -272,52 +272,52 @@ const governanceModule = {
 
           var _xs2token = promisify(cb => governanceContract.xs2token(cb));
           var xs2token = await _xs2token;
-          logInfo("governanceModule", "execWeb3() xs2token " + xs2token);
+          // logInfo("governanceModule", "execWeb3() xs2token " + xs2token);
           commit('updateToken', xs2token);
 
           var _rewardsPerSecond = promisify(cb => governanceContract.rewardsPerSecond(cb));
           var rewardsPerSecond = await _rewardsPerSecond;
-          logInfo("governanceModule", "execWeb3() rewardsPerSecond " + rewardsPerSecond);
+          // logInfo("governanceModule", "execWeb3() rewardsPerSecond " + rewardsPerSecond);
           commit('updateRewardsPerSecond', rewardsPerSecond);
 
           var _proposalCost = promisify(cb => governanceContract.proposalCost(cb));
           var proposalCost = await _proposalCost;
-          logInfo("governanceModule", "execWeb3() proposalCost " + proposalCost);
+          // logInfo("governanceModule", "execWeb3() proposalCost " + proposalCost);
           commit('updateProposalCost', proposalCost);
 
           var _proposalThreshold = promisify(cb => governanceContract.proposalThreshold(cb));
           var proposalThreshold = await _proposalThreshold;
-          logInfo("governanceModule", "execWeb3() proposalThreshold " + proposalThreshold);
+          // logInfo("governanceModule", "execWeb3() proposalThreshold " + proposalThreshold);
           commit('updateProposalThreshold', proposalThreshold);
 
           var _quorum = promisify(cb => governanceContract.quorum(cb));
           var quorum = await _quorum;
-          logInfo("governanceModule", "execWeb3() quorum " + quorum);
+          // logInfo("governanceModule", "execWeb3() quorum " + quorum);
           commit('updateQuorum', quorum);
 
           var _votingDuration = promisify(cb => governanceContract.votingDuration(cb));
           var votingDuration = await _votingDuration;
-          logInfo("governanceModule", "execWeb3() votingDuration " + votingDuration);
+          // logInfo("governanceModule", "execWeb3() votingDuration " + votingDuration);
           commit('updateVotingDuration', votingDuration);
 
           var _executeDelay = promisify(cb => governanceContract.executeDelay(cb));
           var executeDelay = await _executeDelay;
-          logInfo("governanceModule", "execWeb3() executeDelay " + executeDelay);
+          // logInfo("governanceModule", "execWeb3() executeDelay " + executeDelay);
           commit('updateExecuteDelay', executeDelay);
 
           var _rewardPool = promisify(cb => governanceContract.rewardPool(cb));
           var rewardPool = await _rewardPool;
-          logInfo("governanceModule", "execWeb3() rewardPool " + rewardPool);
+          // logInfo("governanceModule", "execWeb3() rewardPool " + rewardPool);
           commit('updateRewardPool', rewardPool);
 
           var _totalVotes = promisify(cb => governanceContract.totalVotes(cb));
           var totalVotes = await _totalVotes;
-          logInfo("governanceModule", "execWeb3() totalVotes " + totalVotes);
+          // logInfo("governanceModule", "execWeb3() totalVotes " + totalVotes);
           commit('updateTotalVotes', totalVotes);
 
           var _proposalCount = promisify(cb => governanceContract.proposalCount(cb));
           var proposalCount = await _proposalCount;
-          // logInfo("governanceModule", "execWeb3() proposalCount " + proposalCount);
+          logInfo("governanceModule", "execWeb3() proposalCount " + proposalCount);
           commit('updateProposalCount', proposalCount);
 
           // address public xs2token;
