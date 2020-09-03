@@ -11,6 +11,10 @@ const routes = [{
     component: TokensExplorer,
     name: 'Tokens',
   }, {
+    path: '/governance/:param',
+    component: GovernanceExplorer,
+    name: 'Governance',
+  }, {
     path: '/docs/:section/:topic',
     component: Docs,
     name: 'Docs',

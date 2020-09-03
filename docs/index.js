@@ -3,6 +3,7 @@ Vue.use(VueApexCharts);
 
 Vue.component('apexchart', VueApexCharts);
 Vue.component('connection', Connection);
+Vue.component('governance', Governance);
 Vue.component('tokens', Tokens);
 Vue.component('payoff', Payoff);
 Vue.component('feeds', Feeds);
@@ -115,7 +116,7 @@ const app = new Vue({
     },
   },
   mounted() {
-    logInfo("app", "mounted() Called");
+    // logInfo("app", "mounted() Called");
     if (localStorage.getItem('connect')) {
       var c = localStorage.getItem('connect');
       store.dispatch('connection/setConnect', c);
@@ -124,7 +125,7 @@ const app = new Vue({
     this.timeoutCallback();
   },
   destroyed() {
-    logInfo("app", "destroyed() Called");
+    // logInfo("app", "destroyed() Called");
     this.reschedule = false;
   },
   methods: {

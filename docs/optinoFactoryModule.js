@@ -283,7 +283,7 @@ const optinoFactoryModule = {
     // },
     updateSeries(state, {seriesKey, series}) {
       Vue.set(state.seriesData, seriesKey, series);
-      logInfo("optinoFactoryModule", "updateSeries(" + seriesKey + ", " + JSON.stringify(series) + ")")
+      // logInfo("optinoFactoryModule", "updateSeries(" + seriesKey + ", " + JSON.stringify(series) + ")")
     },
     processingToken(state, address) {
       Vue.set(state.tokenData, address, {address: address, symbol: null, name: null, decimals: null, totalSupply: null, balance: null, allowance: null, source: null });

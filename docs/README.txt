@@ -61,6 +61,12 @@
 * https://github.com/vuejs/vuex-router-sync
 * Using earlier copy-pasted version
 
+### Vue Apollo
+* https://apollo.vuejs.org/guide/
+* https://github.com/vuejs/vue-apollo
+* https://www.jsdelivr.com/package/npm/vue-apollo
+
+
 ### Highlight.js
 https://highlightjs.org/
 

@@ -7,7 +7,8 @@ const Home = {
             <b-list-group-item to="/optinoExplorer/all">Optino Explorer</b-list-group-item>
             <b-list-group-item to="/feedsExplorer/all">Feeds Explorer</b-list-group-item>
             <b-list-group-item to="/tokensExplorer/all">Tokens Explorer</b-list-group-item>
-            <b-list-group-item to="/docs/intro/top">Docs</b-list-group-item>
+            <b-list-group-item to="/governance/all">Governance</b-list-group-item>
+            <b-list-group-item href="https://wiki.optino.io" target="_blank">Wiki</b-list-group-item>
           </b-list-group>
           <b-card-text class="mt-5">
             This is still work in progress. You will need a browser with web3 injection, e.g., using the MetaMask addon. In your web3 wallet, switch to the Ropsten testnet.
